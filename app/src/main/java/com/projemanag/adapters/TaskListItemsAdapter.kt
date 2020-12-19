@@ -160,17 +160,13 @@ open class TaskListItemsAdapter(
             holder.itemView.rv_card_list.setHasFixedSize(true)
 
             val adapter =
-                CardListItemsAdapter(context, model.cards)
-            holder.itemView.rv_card_list.adapter = adapter
-
-            adapter.setOnClickListener(object :
-                CardListItemsAdapter.OnClickListener {
-                override fun onClick(cardPosition: Int) {
+                CardListItemsAdapter(context, model.cards) {
+                    cardPosition ->
                     if (context is TaskListActivity) {
                         context.cardDetails(position, cardPosition)
                     }
                 }
-            })
+            holder.itemView.rv_card_list.adapter = adapter
 
             /**
              * Creates a divider {@link RecyclerView.ItemDecoration} that can be used with a
