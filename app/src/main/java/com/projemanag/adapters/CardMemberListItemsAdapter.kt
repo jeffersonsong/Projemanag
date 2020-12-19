@@ -13,10 +13,9 @@ import kotlinx.android.synthetic.main.item_card_selected_member.view.*
 open class CardMemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<SelectedMembers>,
-    private val assignMembers: Boolean
+    private val assignMembers: Boolean,
+    private val onClick: ()->Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private var onClickListener: OnClickListener? = null
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -65,9 +64,7 @@ open class CardMemberListItemsAdapter(
             }
 
             holder.itemView.setOnClickListener {
-                if (onClickListener != null) {
-                    onClickListener!!.onClick()
-                }
+                onClick()
             }
         }
     }
@@ -77,13 +74,6 @@ open class CardMemberListItemsAdapter(
      */
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    /**
-     * A function for OnClickListener where the Interface is the expected parameter..
-     */
-    fun setOnClickListener(onClickListener: OnClickListener) {
-        this.onClickListener = onClickListener
     }
 
     /**

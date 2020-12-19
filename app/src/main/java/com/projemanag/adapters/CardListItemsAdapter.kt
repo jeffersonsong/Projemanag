@@ -87,14 +87,10 @@ open class CardListItemsAdapter(
 
                         holder.itemView.rv_card_selected_members_list.layoutManager =
                             GridLayoutManager(context, 4)
-                        val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false)
+                        val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
+                            onClick(position)
+                        }
                         holder.itemView.rv_card_selected_members_list.adapter = adapter
-                        adapter.setOnClickListener(object :
-                            CardMemberListItemsAdapter.OnClickListener {
-                            override fun onClick() {
-                                onClick(position)
-                            }
-                        })
                     }
                 } else {
                     holder.itemView.rv_card_selected_members_list.visibility = View.GONE
