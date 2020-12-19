@@ -43,25 +43,28 @@ open class CardMemberListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
+
+    private fun bind(view:View, position: Int) {
         val model = list[position]
 
         if (position == list.size - 1 && assignMembers) {
-            holder.itemView.iv_add_member.visibility = View.VISIBLE
-            holder.itemView.iv_selected_member_image.visibility = View.GONE
+            view.iv_add_member.visibility = View.VISIBLE
+            view.iv_selected_member_image.visibility = View.GONE
+
         } else {
-            holder.itemView.iv_add_member.visibility = View.GONE
-            holder.itemView.iv_selected_member_image.visibility = View.VISIBLE
+            view.iv_add_member.visibility = View.GONE
+            view.iv_selected_member_image.visibility = View.VISIBLE
 
             Glide
                 .with(context)
                 .load(model.image)
                 .centerCrop()
                 .placeholder(R.drawable.ic_user_place_holder)
-                .into(holder.itemView.iv_selected_member_image)
+                .into(view.iv_selected_member_image)
         }
 
-        holder.itemView.setOnClickListener {
+        view.setOnClickListener {
             onClick()
         }
     }

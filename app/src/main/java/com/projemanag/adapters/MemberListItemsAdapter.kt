@@ -43,7 +43,10 @@ open class MemberListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) =
+        bind(holder.itemView, position)
+
+    private fun bind(view: View, position: Int) {
         val model = list[position]
 
         Glide
@@ -51,23 +54,19 @@ open class MemberListItemsAdapter(
             .load(model.image)
             .centerCrop()
             .placeholder(R.drawable.ic_user_place_holder)
-            .into(holder.itemView.iv_member_image)
+            .into(view.iv_member_image)
 
-        holder.itemView.tv_member_name.text = model.name
-        holder.itemView.tv_member_email.text = model.email
+        view.tv_member_name.text = model.name
+        view.tv_member_email.text = model.email
 
-        if (model.selected) {
-            holder.itemView.iv_selected_member.visibility = View.VISIBLE
-        } else {
-            holder.itemView.iv_selected_member.visibility = View.GONE
-        }
+        view.iv_selected_member.visibility =
+            if (model.selected) View.VISIBLE else View.GONE
 
-        holder.itemView.setOnClickListener {
-            if (model.selected) {
-                onClick(position, model, Constants.UN_SELECT)
-            } else {
-                onClick(position, model, Constants.SELECT)
-            }
+        view.setOnClickListener {
+            onClick(
+                position, model,
+                if (model.selected) Constants.UN_SELECT else Constants.SELECT
+            )
         }
     }
 

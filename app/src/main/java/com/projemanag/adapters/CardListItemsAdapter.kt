@@ -45,19 +45,21 @@ open class CardListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
+
+    private fun bind(view: View, position: Int) {
         val model = list[position]
 
         if (model.labelColor.isNotEmpty()) {
-            holder.itemView.view_label_color.visibility = View.VISIBLE
-            holder.itemView.view_label_color.setBackgroundColor(Color.parseColor(model.labelColor))
+            view.view_label_color.visibility = View.VISIBLE
+            view.view_label_color.setBackgroundColor(Color.parseColor(model.labelColor))
         } else {
-            holder.itemView.view_label_color.visibility = View.GONE
+            view.view_label_color.visibility = View.GONE
         }
 
-        holder.itemView.tv_card_name.text = model.name
+        view.tv_card_name.text = model.name
 
-        if ((context as TaskListActivity).mAssignedMembersDetailList.size > 0) {
+        if ((context as TaskListActivity).mAssignedMembersDetailList.isNotEmpty()) {
             // A instance of selected members list.
             val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
 
@@ -75,25 +77,25 @@ open class CardListItemsAdapter(
                 }
             }
 
-            if (selectedMembersList.size > 0) {
+            if (selectedMembersList.isNotEmpty()) {
                 if (selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy) {
-                    holder.itemView.rv_card_selected_members_list.visibility = View.GONE
+                    view.rv_card_selected_members_list.visibility = View.GONE
                 } else {
-                    holder.itemView.rv_card_selected_members_list.visibility = View.VISIBLE
+                    view.rv_card_selected_members_list.visibility = View.VISIBLE
 
-                    holder.itemView.rv_card_selected_members_list.layoutManager =
+                    view.rv_card_selected_members_list.layoutManager =
                         GridLayoutManager(context, 4)
                     val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
                         onClick(position)
                     }
-                    holder.itemView.rv_card_selected_members_list.adapter = adapter
+                    view.rv_card_selected_members_list.adapter = adapter
                 }
             } else {
-                holder.itemView.rv_card_selected_members_list.visibility = View.GONE
+                view.rv_card_selected_members_list.visibility = View.GONE
             }
         }
 
-        holder.itemView.setOnClickListener {
+        view.setOnClickListener {
             onClick(position)
         }
     }

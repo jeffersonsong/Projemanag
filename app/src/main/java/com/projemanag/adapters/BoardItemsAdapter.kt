@@ -42,7 +42,9 @@ open class BoardItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int)  = bind(holder.itemView, position)
+
+    private fun bind(view: View, position: Int) {
         val model = list[position]
 
         Glide
@@ -50,12 +52,12 @@ open class BoardItemsAdapter(
             .load(model.image)
             .centerCrop()
             .placeholder(R.drawable.ic_board_place_holder)
-            .into(holder.itemView.iv_board_image)
+            .into(view.iv_board_image)
 
-        holder.itemView.tv_name.text = model.name
-        holder.itemView.tv_created_by.text = "Created By : ${model.createdBy}"
+        view.tv_name.text = model.name
+        view.tv_created_by.text = "Created By : ${model.createdBy}"
 
-        holder.itemView.setOnClickListener {
+        view.setOnClickListener {
             onClick(position, model)
         }
     }

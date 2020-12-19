@@ -201,7 +201,6 @@ class TaskListActivity : BaseActivity() {
      * A function to get assigned members detail list.
      */
     fun boardMembersDetailList(list: ArrayList<User>) {
-
         mAssignedMembersDetailList = list
 
         hideProgressDialog()

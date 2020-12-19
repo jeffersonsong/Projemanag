@@ -17,8 +17,6 @@ abstract class MembersListDialog(
     private val title: String = ""
 ) : Dialog(context) {
 
-    private var adapter: MemberListItemsAdapter? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState ?: Bundle())
 
@@ -33,11 +31,9 @@ abstract class MembersListDialog(
     private fun setUpRecyclerView(view: View) {
         view.tvTitle.text = title
 
-        if (list.size > 0) {
-
+        if (list.isNotEmpty()) {
             view.rvList.layoutManager = LinearLayoutManager(context)
-            adapter = MemberListItemsAdapter(context, list) {
-                position, user, action ->
+            val adapter = MemberListItemsAdapter(context, list) { position, user, action ->
                 dismiss()
                 onItemSelected(user, action)
             }
@@ -45,5 +41,5 @@ abstract class MembersListDialog(
         }
     }
 
-    protected abstract fun onItemSelected(user: User, action:String)
+    protected abstract fun onItemSelected(user: User, action: String)
 }

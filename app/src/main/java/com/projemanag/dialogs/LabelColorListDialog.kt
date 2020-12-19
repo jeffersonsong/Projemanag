@@ -17,8 +17,6 @@ abstract class LabelColorListDialog(
     private val mSelectedColor: String = ""
 ) : Dialog(context) {
 
-    private var adapter: LabelColorListItemsAdapter? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState ?: Bundle())
 
@@ -33,8 +31,7 @@ abstract class LabelColorListDialog(
     private fun setUpRecyclerView(view: View) {
         view.tvTitle.text = title
         view.rvList.layoutManager = LinearLayoutManager(context)
-        adapter = LabelColorListItemsAdapter(context, list, mSelectedColor) {
-            position, color->
+        val adapter = LabelColorListItemsAdapter(context, list, mSelectedColor) { position, color ->
             dismiss()
             onItemSelected(color)
         }

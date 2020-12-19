@@ -27,15 +27,17 @@ class LabelColorListItemsAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
+
+    private fun bind(view:View, position:Int) {
         val item = list[position]
 
-        holder.itemView.view_main.setBackgroundColor(Color.parseColor(item))
+        view.view_main.setBackgroundColor(Color.parseColor(item))
 
-        holder.itemView.iv_selected_color.visibility =
+        view.iv_selected_color.visibility =
             if (item == mSelectedColor) View.VISIBLE else View.GONE
 
-        holder.itemView.setOnClickListener {
+        view.setOnClickListener {
             onClick(position, item)
         }
     }
