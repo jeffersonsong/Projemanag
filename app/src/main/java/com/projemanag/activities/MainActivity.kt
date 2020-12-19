@@ -157,7 +157,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to get the current user details from firebase.
      */
-    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean= false) {
+    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean = false) {
 
         hideProgressDialog()
 
@@ -215,17 +215,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             rv_boards_list.setHasFixedSize(true)
 
             // Create an instance of BoardItemsAdapter and pass the boardList to it.
-            val adapter = BoardItemsAdapter(this@MainActivity, boardsList)
-            rv_boards_list.adapter = adapter // Attach the adapter to the recyclerView.
-
-            adapter.setOnClickListener(object :
-                BoardItemsAdapter.OnClickListener {
-                override fun onClick(position: Int, model: Board) {
+            val adapter =
+                BoardItemsAdapter(this@MainActivity, boardsList) { position: Int, model: Board ->
                     val intent = Intent(this@MainActivity, TaskListActivity::class.java)
                     intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
                     startActivity(intent)
                 }
-            })
+            rv_boards_list.adapter = adapter // Attach the adapter to the recyclerView.
+
         } else {
             rv_boards_list.visibility = View.GONE
             tv_no_boards_available.visibility = View.VISIBLE
@@ -258,7 +255,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             { hideProgressDialog() })
     }
 
-    private fun loadUserData(readBoardsList: Boolean= false) {
+    private fun loadUserData(readBoardsList: Boolean = false) {
         showProgressDialog(resources.getString(R.string.please_wait))
         firestore.loadUserData(
             { user -> updateNavigationUserDetails(user, readBoardsList) },

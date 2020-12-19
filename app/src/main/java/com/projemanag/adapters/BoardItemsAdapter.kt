@@ -12,10 +12,9 @@ import kotlinx.android.synthetic.main.item_board.view.*
 
 open class BoardItemsAdapter(
     private val context: Context,
-    private var list: ArrayList<Board>
+    private var list: ArrayList<Board>,
+    private val onClick: (position: Int, model: Board) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private var onClickListener: OnClickListener? = null
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -60,10 +59,7 @@ open class BoardItemsAdapter(
             holder.itemView.tv_created_by.text = "Created By : ${model.createdBy}"
 
             holder.itemView.setOnClickListener {
-
-                if (onClickListener != null) {
-                    onClickListener!!.onClick(position, model)
-                }
+            onClick(position, model)
             }
         }
     }
@@ -73,20 +69,6 @@ open class BoardItemsAdapter(
      */
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    /**
-     * A function for OnClickListener where the Interface is the expected parameter..
-     */
-    fun setOnClickListener(onClickListener: OnClickListener) {
-        this.onClickListener = onClickListener
-    }
-
-    /**
-     * An interface for onclick items.
-     */
-    interface OnClickListener {
-        fun onClick(position: Int, model: Board)
     }
 
     /**
