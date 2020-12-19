@@ -11,9 +11,7 @@ import com.projemanag.firebase.FirebaseAuthClass
 import kotlinx.android.synthetic.main.dialog_progress.*
 
 open class BaseActivity : AppCompatActivity() {
-
     private val authentication = FirebaseAuthClass()
-
     private var doubleBackToExitPressedOnce = false
 
     /**
@@ -35,6 +33,10 @@ open class BaseActivity : AppCompatActivity() {
 
         //Start the dialog and display it on screen.
         mProgressDialog.show()
+    }
+
+    fun pleaseWait() {
+        showProgressDialog(resources.getString(R.string.please_wait))
     }
 
     /**

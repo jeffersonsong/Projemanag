@@ -20,7 +20,6 @@ class FirestoreClass {
      * A function to make an entry of the registered user in the firestore database.
      */
     fun registerUser(userInfo: User, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-
         mFireStore.collection(Constants.USERS)
             // Document ID for users fields. Here the document it is the User ID.
             .document(getCurrentUserID())
@@ -164,7 +163,6 @@ class FirestoreClass {
      * A function to create a task list in the board detail.
      */
     fun addUpdateTaskList(board: Board, onSuccess: ()->Unit, onFailure: ()->Unit) {
-
         val taskListHashMap = HashMap<String, Any>()
         taskListHashMap[Constants.TASK_LIST] = board.taskList
 
@@ -189,7 +187,6 @@ class FirestoreClass {
         assignedTo: ArrayList<String>,
         onSuccess: (ArrayList<User>) -> Unit, onFailure: (Exception) -> Unit
     ) {
-
         mFireStore.collection(Constants.USERS) // Collection Name
             .whereIn(
                 Constants.ID,
@@ -224,7 +221,6 @@ class FirestoreClass {
         noUserFound: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-
         // Here we pass the collection name from which we wants the data.
         mFireStore.collection(Constants.USERS)
             // A where array query as we want the list of the board in which the user is assigned. So here you can pass the current user id.
@@ -233,7 +229,7 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 Log.e(javaClass.simpleName, document.documents.toString())
 
-                if (document.documents.size > 0) {
+                if (document.documents.isNotEmpty()) {
                     val user = document.documents[0].toObject(User::class.java)!!
                     // Here call a function of base activity for transferring the result to it.
                     onUserFound(user)
@@ -255,7 +251,6 @@ class FirestoreClass {
         board: Board, user: User,
         onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit
     ) {
-
         val assignedToHashMap = HashMap<String, Any>()
         assignedToHashMap[Constants.ASSIGNED_TO] = board.assignedTo
 

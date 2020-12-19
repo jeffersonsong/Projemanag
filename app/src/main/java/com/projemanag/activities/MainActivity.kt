@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private val firestore = FirestoreClass()
+    private val store = FirestoreClass()
     private val authentication = FirebaseAuthClass()
 
     // A global variable for User Name
@@ -147,7 +147,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
      * A function for opening and closing the Navigation Drawer.
      */
     private fun toggleDrawer() {
-
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
@@ -204,10 +203,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
      * A function to populate the result of BOARDS list in the UI i.e in the recyclerView.
      */
     fun populateBoardsListToUI(boardsList: ArrayList<Board>) {
-
         hideProgressDialog()
-
-        if (boardsList.size > 0) {
+        if (boardsList.isNotEmpty()) {
 
             rv_boards_list.visibility = View.VISIBLE
             tv_no_boards_available.visibility = View.GONE
@@ -234,9 +231,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
      * A function to notify the token is updated successfully in the database.
      */
     fun tokenUpdateSuccess() {
-
         hideProgressDialog()
-
         // Here we have added a another value in shared preference that the token is updated in the database successfully.
         // So we don't need to update it every time.
         val editor: SharedPreferences.Editor = mSharedPreferences.edit()
@@ -250,22 +245,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun getBoardsList() {
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        firestore.getBoardsList(
+        pleaseWait()
+        store.getBoardsList(
             { boardsList -> populateBoardsListToUI(boardsList) },
             { hideProgressDialog() })
     }
 
     private fun loadUserData(readBoardsList: Boolean = false) {
-        showProgressDialog(resources.getString(R.string.please_wait))
-        firestore.loadUserData(
+        pleaseWait()
+        store.loadUserData(
             { user -> updateNavigationUserDetails(user, readBoardsList) },
             { hideProgressDialog() })
     }
 
     private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
-        showProgressDialog(resources.getString(R.string.please_wait))
-        firestore.updateUserProfileData(
+        pleaseWait()
+        store.updateUserProfileData(
             userHashMap,
             { tokenUpdateSuccess() }, { hideProgressDialog() })
     }

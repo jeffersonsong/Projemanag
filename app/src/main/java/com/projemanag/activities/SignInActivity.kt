@@ -63,7 +63,7 @@ class SignInActivity : BaseActivity() {
 
         if (validateForm(email, password)) {
             // Show the progress dialog.
-            showProgressDialog(resources.getString(R.string.please_wait))
+            pleaseWait()
 
             // Sign-In using FirebaseAuth
             signInWithEmailAndPassword(email, password)
@@ -89,9 +89,7 @@ class SignInActivity : BaseActivity() {
      * A function to get the user details from the firestore database after authentication.
      */
     fun signInSuccess(user: User) {
-
         hideProgressDialog()
-
         startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         this.finish()
     }
@@ -99,7 +97,8 @@ class SignInActivity : BaseActivity() {
     private fun signInWithEmailAndPassword(email: String, password: String) {
         authentication.signInWithEmailAndPassword(
             email, password,
-            { loadUserData() }, { e ->
+            { loadUserData() },
+            { e ->
                 Toast.makeText(
                     this@SignInActivity,
                     e.message,

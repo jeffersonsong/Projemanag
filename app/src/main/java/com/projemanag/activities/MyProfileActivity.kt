@@ -11,9 +11,8 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.projemanag.R
+import com.projemanag.firebase.FirebaseStorageClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.User
 import com.projemanag.utils.Constants
@@ -21,7 +20,8 @@ import kotlinx.android.synthetic.main.activity_my_profile.*
 import java.io.IOException
 
 class MyProfileActivity : BaseActivity() {
-    private val firestore = FirestoreClass()
+    private val store = FirestoreClass()
+    private val imageStorage = FirebaseStorageClass()
 
     // Add a global variable for URI of a selected image from phone storage.
     private var mSelectedImageFileUri: Uri? = null
@@ -59,15 +59,11 @@ class MyProfileActivity : BaseActivity() {
         }
 
         btn_update.setOnClickListener {
-
             // Here if the image is not selected then update the other details of user.
             if (mSelectedImageFileUri != null) {
-
                 uploadUserImage()
             } else {
-
-                showProgressDialog(resources.getString(R.string.please_wait))
-
+                pleaseWait()
                 // Call a function to update user details in the database.
                 updateUserProfileData()
             }
@@ -146,7 +142,6 @@ class MyProfileActivity : BaseActivity() {
      * A function to set the existing details in UI.
      */
     fun setUserDataInUI(user: User) {
-
         // Initialize the user details variable
         mUserDetails = user
 
@@ -164,60 +159,10 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-
-    /**
-     * A function to upload the selected user image to firebase cloud storage.
-     */
-    private fun uploadUserImage() {
-
-        showProgressDialog(resources.getString(R.string.please_wait))
-
-        if (mSelectedImageFileUri != null) {
-
-            //getting the storage reference
-            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-                "USER_IMAGE" + System.currentTimeMillis() + "."
-                        + Constants.getFileExtension(this@MyProfileActivity, mSelectedImageFileUri)
-            )
-
-            //adding the file to reference
-            sRef.putFile(mSelectedImageFileUri!!)
-                .addOnSuccessListener { taskSnapshot ->
-                    // The image upload is success
-                    Log.e(
-                        "Firebase Image URL",
-                        taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
-                    )
-
-                    // Get the downloadable url from the task snapshot
-                    taskSnapshot.metadata!!.reference!!.downloadUrl
-                        .addOnSuccessListener { uri ->
-                            Log.e("Downloadable Image URL", uri.toString())
-
-                            // assign the image url to the variable.
-                            mProfileImageURL = uri.toString()
-
-                            // Call a function to update user details in the database.
-                            updateUserProfileData()
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(
-                        this@MyProfileActivity,
-                        exception.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    hideProgressDialog()
-                }
-        }
-    }
-
     /**
      * A function to update the user profile details into the database.
      */
     private fun updateUserProfileData() {
-
         val userHashMap = HashMap<String, Any>()
 
         if (mProfileImageURL.isNotEmpty() && mProfileImageURL != mUserDetails.image) {
@@ -240,7 +185,6 @@ class MyProfileActivity : BaseActivity() {
      * A function to notify the user profile is updated successfully.
      */
     fun profileUpdateSuccess() {
-
         hideProgressDialog()
 
         Toast.makeText(this@MyProfileActivity, "Profile updated successfully!", Toast.LENGTH_SHORT)
@@ -250,14 +194,50 @@ class MyProfileActivity : BaseActivity() {
         finish()
     }
 
+
+
+    /**
+     * A function to upload the selected user image to firebase cloud storage.
+     */
+    private fun uploadUserImage() {
+        pleaseWait()
+
+        if (mSelectedImageFileUri != null) {
+            //getting the storage reference
+            val fileName = ("USER_IMAGE" + System.currentTimeMillis() + "."
+                    + Constants.getFileExtension(this@MyProfileActivity, mSelectedImageFileUri))
+
+            imageStorage.uploadImage(
+                mSelectedImageFileUri!!, fileName,
+                {uri->
+                    Log.e("Downloadable Image URL", uri.toString())
+                    // assign the image url to the variable.
+                    mProfileImageURL = uri.toString()
+
+                    // Call a function to update user details in the database.
+                    updateUserProfileData()
+                },
+                {exception ->
+                    Toast.makeText(
+                        this@MyProfileActivity,
+                        exception.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    hideProgressDialog()
+                }
+            )
+        }
+    }
+
     private fun loadUserData() {
-        firestore.loadUserData(
+        store.loadUserData(
             { user -> setUserDataInUI(user) },
             { hideProgressDialog() })
     }
 
     private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
-        firestore.updateUserProfileData(
+        store.updateUserProfileData(
             userHashMap,
             { profileUpdateSuccess() }, { hideProgressDialog() })
     }

@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_sign_up.*
 class SignUpActivity : BaseActivity() {
     private val firestore = FirestoreClass()
     private val authentication = FirebaseAuthClass()
-    
+
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -120,7 +120,7 @@ class SignUpActivity : BaseActivity() {
         password: String
     ) {
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
+        pleaseWait()
         authentication.createUserWithEmailAndPassword(
             name, email, password,
             { user -> registerUser(user) },

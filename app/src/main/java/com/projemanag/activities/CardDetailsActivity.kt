@@ -23,7 +23,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class CardDetailsActivity : BaseActivity() {
-    private val firestore = FirestoreClass()
+    private val store = FirestoreClass()
 
     // A global variable for board details
     private lateinit var mBoardDetails: Board
@@ -77,7 +77,6 @@ class CardDetailsActivity : BaseActivity() {
         }
 
         tv_select_due_date.setOnClickListener {
-
             showDataPicker()
         }
 
@@ -101,7 +100,8 @@ class CardDetailsActivity : BaseActivity() {
         // Handle presses on the action bar menu items
         when (item.itemId) {
             R.id.action_delete_card -> {
-                alertDialogForDeleteCard(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name)
+                val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+                alertDialogForDeleteCard(card.name)
                 return true
             }
         }
@@ -112,14 +112,14 @@ class CardDetailsActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-
         setSupportActionBar(toolbar_card_details_activity)
 
         val actionBar = supportActionBar
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name
+            val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+            actionBar.title = card.name
         }
 
         toolbar_card_details_activity.setNavigationOnClickListener { onBackPressed() }
@@ -127,7 +127,6 @@ class CardDetailsActivity : BaseActivity() {
 
     // A function to get all the data that is sent through intent.
     private fun getIntentData() {
-
         if (intent.hasExtra(Constants.TASK_LIST_ITEM_POSITION)) {
             mTaskListPosition = intent.getIntExtra(Constants.TASK_LIST_ITEM_POSITION, -1)
         }
@@ -147,9 +146,7 @@ class CardDetailsActivity : BaseActivity() {
      * A function to get the result of add or updating the task list.
      */
     fun addUpdateTaskListSuccess() {
-
         hideProgressDialog()
-
         setResult(Activity.RESULT_OK)
         finish()
     }
@@ -158,12 +155,14 @@ class CardDetailsActivity : BaseActivity() {
      * A function to update card details.
      */
     private fun updateCardDetails() {
+        val name = et_name_card_details.text.toString()
+        var mCard = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
 
         // Here we have updated the card name using the data model class.
         val card = Card(
-            et_name_card_details.text.toString(),
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
+            name,
+            mCard.createdBy,
+            mCard.assignedTo,
             mSelectedColor,
             mSelectedDueDateMilliSeconds
         )
@@ -213,7 +212,6 @@ class CardDetailsActivity : BaseActivity() {
      * A function to delete the card from the task list.
      */
     private fun deleteCard() {
-
         // Here we have got the cards list from the task item list using the task list position.
         val cardsList: ArrayList<Card> = mBoardDetails.taskList[mTaskListPosition].cards
         // Here we will remove the item from cards list using the card position.
@@ -248,9 +246,7 @@ class CardDetailsActivity : BaseActivity() {
      * A function to launch the label color list dialog.
      */
     private fun labelColorsListDialog() {
-
         val colorsList: ArrayList<String> = colorsList()
-
         val listDialog = object : LabelColorListDialog(
             this@CardDetailsActivity,
             colorsList,
@@ -269,12 +265,11 @@ class CardDetailsActivity : BaseActivity() {
      * A function to launch and setup assigned members detail list into recyclerview.
      */
     private fun membersListDialog() {
-
         // Here we get the updated assigned members list
         val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
         val cardAssignedMembersList = card.assignedTo
 
-        if (cardAssignedMembersList.size > 0) {
+        if (cardAssignedMembersList.isNotEmpty()) {
             // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
             for (i in mMembersDetailList.indices) {
                 for (j in cardAssignedMembersList) {
@@ -320,7 +315,6 @@ class CardDetailsActivity : BaseActivity() {
      * A function to setup the recyclerView for card assigned members.
      */
     private fun setupSelectedMembersList() {
-
         // Assigned members of the Card.
         val cardAssignedMembersList =
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
@@ -342,8 +336,7 @@ class CardDetailsActivity : BaseActivity() {
             }
         }
 
-        if (selectedMembersList.size > 0) {
-
+        if (selectedMembersList.isNotEmpty()) {
             // This is for the last item to show.
             selectedMembersList.add(SelectedMembers("", ""))
 
@@ -429,13 +422,12 @@ class CardDetailsActivity : BaseActivity() {
         dpd.show() // It is used to show the datePicker Dialog.
     }
 
-
     private fun dateFormat() = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
 
     private fun addUpdateTaskList() {
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        firestore.addUpdateTaskList(mBoardDetails,
+        pleaseWait()
+        store.addUpdateTaskList(mBoardDetails,
             { addUpdateTaskListSuccess() },
             { hideProgressDialog() })
     }

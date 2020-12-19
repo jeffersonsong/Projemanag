@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.projemanag.R
+import com.projemanag.firebase.FirebaseStorageClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.Board
 import com.projemanag.utils.Constants
@@ -22,7 +23,8 @@ import kotlinx.android.synthetic.main.activity_my_profile.*
 import java.io.IOException
 
 class CreateBoardActivity : BaseActivity() {
-    private val firestore = FirestoreClass()
+    private val store = FirestoreClass()
+    private val imageStorage = FirebaseStorageClass()
 
     // Add a global variable for URI of a selected image from phone storage.
     private var mSelectedImageFileUri: Uri? = null
@@ -44,7 +46,6 @@ class CreateBoardActivity : BaseActivity() {
         }
 
         iv_board_image.setOnClickListener { view ->
-
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED
             ) {
@@ -62,15 +63,11 @@ class CreateBoardActivity : BaseActivity() {
         }
 
         btn_create.setOnClickListener {
-
             // Here if the image is not selected then update the other details of user.
             if (mSelectedImageFileUri != null) {
-
                 uploadBoardImage()
             } else {
-
-                showProgressDialog(resources.getString(R.string.please_wait))
-
+                pleaseWait()
                 // Call a function to update create a board.
                 createBoard()
             }
@@ -131,7 +128,6 @@ class CreateBoardActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-
         setSupportActionBar(toolbar_create_board_activity)
 
         val actionBar = supportActionBar
@@ -147,36 +143,23 @@ class CreateBoardActivity : BaseActivity() {
      * A function to upload the Board Image to storage and getting the downloadable URL of the image.
      */
     private fun uploadBoardImage() {
-        showProgressDialog(resources.getString(R.string.please_wait))
-
+        pleaseWait()
         //getting the storage reference
-        val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-            "BOARD_IMAGE" + System.currentTimeMillis() + "."
-                    + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri)
-        )
+        val fileName = ("BOARD_IMAGE" + System.currentTimeMillis() + "."
+                + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri))
+        imageStorage.uploadImage(
+            mSelectedImageFileUri!!,
+            fileName,
+            { uri ->
+                Log.e("Downloadable Image URL", uri.toString())
 
-        //adding the file to reference
-        sRef.putFile(mSelectedImageFileUri!!)
-            .addOnSuccessListener { taskSnapshot ->
-                // The image upload is success
-                Log.e(
-                    "Firebase Image URL",
-                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
-                )
+                // assign the image url to the variable.
+                mBoardImageURL = uri.toString()
 
-                // Get the downloadable url from the task snapshot
-                taskSnapshot.metadata!!.reference!!.downloadUrl
-                    .addOnSuccessListener { uri ->
-                        Log.e("Downloadable Image URL", uri.toString())
-
-                        // assign the image url to the variable.
-                        mBoardImageURL = uri.toString()
-
-                        // Call a function to create the board.
-                        createBoard()
-                    }
-            }
-            .addOnFailureListener { exception ->
+                // Call a function to create the board.
+                createBoard()
+            },
+            { exception ->
                 Toast.makeText(
                     this@CreateBoardActivity,
                     exception.message,
@@ -185,13 +168,13 @@ class CreateBoardActivity : BaseActivity() {
 
                 hideProgressDialog()
             }
+        )
     }
 
     /**
      * A function to make an entry of a board in the database.
      */
     private fun createBoard() {
-
         //  A list is created to add the assigned menu_members.
         //  This can be modified later on as of now the user itself will be the member of the board.
         val assignedUsersArrayList: ArrayList<String> = ArrayList()
@@ -212,15 +195,13 @@ class CreateBoardActivity : BaseActivity() {
      * A function for notifying the board is created successfully.
      */
     fun boardCreatedSuccessfully() {
-
         hideProgressDialog()
-
         setResult(Activity.RESULT_OK)
         finish()
     }
 
     private fun createBoard(board: Board) {
-        firestore.createBoard(
+        store.createBoard(
             board,
             {
                 Toast.makeText(

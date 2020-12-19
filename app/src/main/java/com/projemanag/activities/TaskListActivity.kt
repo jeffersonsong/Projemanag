@@ -232,8 +232,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun getAssignedMembersListDetails() {
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
+        pleaseWait()
         firestore.getAssignedMembersListDetails(
             mBoardDetails.assignedTo,
             { usersList -> boardMembersDetailList(usersList) },
@@ -242,15 +241,14 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun getBoardDetails(boardId: String) {
-        showProgressDialog(resources.getString(R.string.please_wait))
+        pleaseWait()
         firestore.getBoardDetails(boardId,
             { board -> boardDetails(board) },
             { hideProgressDialog() })
     }
 
     private fun addUpdateTaskList() {
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
+        pleaseWait()
         firestore.addUpdateTaskList(mBoardDetails,
             { addUpdateTaskListSuccess() },
             { hideProgressDialog() })
