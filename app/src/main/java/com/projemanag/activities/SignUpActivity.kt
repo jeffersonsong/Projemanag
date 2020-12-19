@@ -14,6 +14,7 @@ import com.projemanag.model.User
 import kotlinx.android.synthetic.main.activity_sign_up.*
 
 class SignUpActivity : BaseActivity() {
+    private val firestore = FirestoreClass()
 
     /**
      * This function is auto created by Android when the Activity Class is created.
@@ -84,7 +85,7 @@ class SignUpActivity : BaseActivity() {
                             )
 
                             // call the registerUser function of FirestoreClass to make an entry in the database.
-                            FirestoreClass().registerUser(this@SignUpActivity, user)
+                            registerUser(user)
                         } else {
                             Toast.makeText(
                                 this@SignUpActivity,
@@ -140,5 +141,12 @@ class SignUpActivity : BaseActivity() {
         FirebaseAuth.getInstance().signOut()
         // Finish the Sign-Up Screen
         finish()
+    }
+
+    private fun registerUser(user: User) {
+        firestore.registerUser(
+            user,
+            { userRegisteredSuccess() },
+            { e -> hideProgressDialog() })
     }
 }

@@ -112,7 +112,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // TODO (Step 9: Now once the notification is received and visible in the notification tray than we can navigate them into the app as per requirement.)
         // START
         // As here we will navigate them to the main screen if user is already logged in or to the login screen.
-        val intent: Intent = if (FirestoreClass().getCurrentUserID().isNotEmpty()) {
+        val intent: Intent = if (getCurrentUserID().isNotEmpty()) {
             Intent(this, MainActivity::class.java)
         } else {
             Intent(this, SignInActivity::class.java)
@@ -156,6 +156,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
     }
+
+    private fun getCurrentUserID() = FirestoreClass().getCurrentUserID()
 
     companion object {
         private const val TAG = "MyFirebaseMsgService"

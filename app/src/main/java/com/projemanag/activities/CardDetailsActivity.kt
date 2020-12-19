@@ -23,17 +23,23 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class CardDetailsActivity : BaseActivity() {
+    private val firestore = FirestoreClass()
 
     // A global variable for board details
     private lateinit var mBoardDetails: Board
+
     // A global variable for task item position
     private var mTaskListPosition: Int = -1
+
     // A global variable for card item position
     private var mCardPosition: Int = -1
+
     // A global variable for selected label color
     private var mSelectedColor: String = ""
+
     // A global variable for Assigned Members List.
     private lateinit var mMembersDetailList: ArrayList<User>
+
     // A global variable for selected due date
     private var mSelectedDueDateMilliSeconds: Long = 0
 
@@ -169,9 +175,7 @@ class CardDetailsActivity : BaseActivity() {
         // Here we have assigned the update card details to the task list using the card position.
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
+        addUpdateTaskList()
     }
 
     /**
@@ -221,9 +225,15 @@ class CardDetailsActivity : BaseActivity() {
 
         taskList[mTaskListPosition].cards = cardsList
 
+        addUpdateTaskList()
+    }
+
+    private fun addUpdateTaskList() {
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
+        firestore.addUpdateTaskList(mBoardDetails,
+            { addUpdateTaskListSuccess() },
+            { hideProgressDialog() })
     }
 
     /**
@@ -238,17 +248,9 @@ class CardDetailsActivity : BaseActivity() {
      * A function to add some static label colors in the list.
      */
     private fun colorsList(): ArrayList<String> {
-
-        val colorsList: ArrayList<String> = ArrayList()
-        colorsList.add("#43C86F")
-        colorsList.add("#0C90F1")
-        colorsList.add("#F72400")
-        colorsList.add("#7A8089")
-        colorsList.add("#D57C1D")
-        colorsList.add("#770000")
-        colorsList.add("#0022F8")
-
-        return colorsList
+        return arrayListOf(
+            "#43C86F", "#0C90F1", "#F72400", "#7A8089", "#D57C1D", "#770000", "#0022F8"
+        )
     }
 
     /**

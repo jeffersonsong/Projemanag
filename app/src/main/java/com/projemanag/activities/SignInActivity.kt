@@ -12,6 +12,7 @@ import com.projemanag.model.User
 import kotlinx.android.synthetic.main.activity_sign_in.*
 
 class SignInActivity : BaseActivity() {
+    private val firestore = FirestoreClass()
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -67,7 +68,7 @@ class SignInActivity : BaseActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Calling the FirestoreClass signInUser function to get the data of user from database.
-                        FirestoreClass().loadUserData(this@SignInActivity)
+                        loadUserData()
                     } else {
                         Toast.makeText(
                             this@SignInActivity,
@@ -104,4 +105,11 @@ class SignInActivity : BaseActivity() {
         startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         this.finish()
     }
+
+    private fun loadUserData() {
+        firestore.loadUserData(
+            { user -> signInSuccess(user) },
+            { hideProgressDialog() })
+    }
+
 }

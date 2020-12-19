@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException
 import java.net.URL
 
 class MembersActivity : BaseActivity() {
+    private val firestore =FirestoreClass()
 
     // A global variable for Board Details.
     private lateinit var mBoardDetails: Board
@@ -48,13 +49,9 @@ class MembersActivity : BaseActivity() {
 
         setupActionBar()
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getAssignedMembersListDetails(
-            this@MembersActivity,
-            mBoardDetails.assignedTo
-        )
+        getAssignedMembersListDetails()
     }
+
 
     override fun onBackPressed() {
         if (anyChangesDone) {
@@ -128,9 +125,7 @@ class MembersActivity : BaseActivity() {
             if (email.isNotEmpty()) {
                 dialog.dismiss()
 
-                // Show the progress dialog.
-                showProgressDialog(resources.getString(R.string.please_wait))
-                FirestoreClass().getMemberDetails(this@MembersActivity, email)
+                getMemberDetails(email)
             } else {
                 showErrorSnackBar("Please enter members email address.")
             }
@@ -146,7 +141,7 @@ class MembersActivity : BaseActivity() {
 
         mBoardDetails.assignedTo.add(user.id)
 
-        FirestoreClass().assignMemberToBoard(this@MembersActivity, mBoardDetails, user)
+        assignMemberToBoard(user)
     }
 
     /**
@@ -166,6 +161,35 @@ class MembersActivity : BaseActivity() {
         // START
         SendNotificationToUserAsyncTask(mBoardDetails.name, user.fcmToken).execute()
         // END
+    }
+
+    private fun assignMemberToBoard(user: User) {
+        firestore.assignMemberToBoard(mBoardDetails, user,
+            { user -> memberAssignSuccess(user) },
+            { hideProgressDialog() })
+    }
+
+    private fun getAssignedMembersListDetails() {
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.getAssignedMembersListDetails(
+            mBoardDetails.assignedTo,
+            { usersList -> setupMembersList(usersList) },
+            { hideProgressDialog() }
+        )
+    }
+
+    private fun getMemberDetails(email: String) {
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.getMemberDetails(
+            email,
+            { user -> memberDetails(user) },
+            {
+                hideProgressDialog()
+                showErrorSnackBar("No such member found.")
+            },
+            { e -> hideProgressDialog() })
     }
 
     // TODO (Step 2: Create a AsyncTask class for sending the notification to user based on the FCM Token.)

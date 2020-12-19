@@ -39,7 +39,7 @@ class SplashActivity : AppCompatActivity() {
             // we will redirect him to MainScreen or else to the Intro Screen as it was before.
 
             // Get the current user id
-            val currentUserID = FirestoreClass().getCurrentUserID()
+            val currentUserID = getCurrentUserID()
             // Start the Intro Activity
 
             if (currentUserID.isNotEmpty()) {
@@ -52,4 +52,6 @@ class SplashActivity : AppCompatActivity() {
             finish() // Call this when your activity is done and should be closed.
         }, 2500) // Here we pass the delay time in milliSeconds after which the splash activity will disappear.
     }
+
+    private fun getCurrentUserID() = FirestoreClass().getCurrentUserID()
 }

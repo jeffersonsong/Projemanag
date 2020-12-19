@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+    private val firestore = FirestoreClass()
 
     // A global variable for User Name
     private lateinit var mUserName: String
@@ -60,13 +61,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (tokenUpdated) {
             // Get the current logged in user details.
             // Show the progress dialog.
-            showProgressDialog(resources.getString(R.string.please_wait))
-            FirestoreClass().loadUserData(this@MainActivity, true)
+            loadUserData(true)
         } else {
             FirebaseInstanceId.getInstance()
                 .instanceId.addOnSuccessListener(this@MainActivity) { instanceIdResult ->
-                updateFCMToken(instanceIdResult.token)
-            }
+                    updateFCMToken(instanceIdResult.token)
+                }
         }
 
         fab_create_board.setOnClickListener {
@@ -119,12 +119,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             && requestCode == MY_PROFILE_REQUEST_CODE
         ) {
             // Get the user updated details.
-            FirestoreClass().loadUserData(this@MainActivity)
+            loadUserData()
         } else if (resultCode == Activity.RESULT_OK
             && requestCode == CREATE_BOARD_REQUEST_CODE
         ) {
             // Get the latest boards list.
-            FirestoreClass().getBoardsList(this@MainActivity)
+            getBoardsList()
         } else {
             Log.e("Cancelled", "Cancelled")
         }
@@ -134,7 +134,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
      * A function to setup action bar
      */
     private fun setupActionBar() {
-
         setSupportActionBar(toolbar_main_activity)
         toolbar_main_activity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
 
@@ -158,7 +157,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to get the current user details from firebase.
      */
-    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean) {
+    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean= false) {
 
         hideProgressDialog()
 
@@ -184,9 +183,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         navUsername.text = user.name
 
         if (readBoardsList) {
-            // Show the progress dialog.
-            showProgressDialog(resources.getString(R.string.please_wait))
-            FirestoreClass().getBoardsList(this@MainActivity)
+            getBoardsList()
         }
     }
 
@@ -200,8 +197,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // Update the data in the database.
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().updateUserProfileData(this@MainActivity, userHashMap)
+        updateUserProfileData(userHashMap)
     }
 
     /**
@@ -252,8 +248,29 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // Get the current logged in user details.
         // Show the progress dialog.
+        loadUserData(true)
+    }
+
+    private fun getBoardsList() {
+        // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().loadUserData(this@MainActivity, true)
+        firestore.getBoardsList(
+            { boardsList -> populateBoardsListToUI(boardsList) },
+            { hideProgressDialog() })
+    }
+
+    private fun loadUserData(readBoardsList: Boolean= false) {
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.loadUserData(
+            { user -> updateNavigationUserDetails(user, readBoardsList) },
+            { hideProgressDialog() })
+    }
+
+    private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.updateUserProfileData(
+            userHashMap,
+            { tokenUpdateSuccess() }, { hideProgressDialog() })
     }
 
     /**

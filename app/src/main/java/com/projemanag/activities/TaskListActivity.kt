@@ -17,7 +17,9 @@ import com.projemanag.model.User
 import com.projemanag.utils.Constants
 import kotlinx.android.synthetic.main.activity_task_list.*
 
+
 class TaskListActivity : BaseActivity() {
+    private val firestore = FirestoreClass()
 
     // A global variable for Board Details.
     private lateinit var mBoardDetails: Board
@@ -37,8 +39,7 @@ class TaskListActivity : BaseActivity() {
         }
 
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentId)
+        getBoardDetails(mBoardDocumentId)
     }
 
     /**
@@ -83,9 +84,7 @@ class TaskListActivity : BaseActivity() {
         if (resultCode == Activity.RESULT_OK
             && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
         ) {
-            // Show the progress dialog.
-            showProgressDialog(resources.getString(R.string.please_wait))
-            FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentId)
+            getBoardDetails(mBoardDocumentId)
         } else {
             Log.e("Cancelled", "Cancelled")
         }
@@ -103,12 +102,7 @@ class TaskListActivity : BaseActivity() {
         // Call the function to setup action bar.
         setupActionBar()
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getAssignedMembersListDetails(
-            this@TaskListActivity,
-            mBoardDetails.assignedTo
-        )
+        getAssignedMembersListDetails()
     }
 
     /**
@@ -119,14 +113,12 @@ class TaskListActivity : BaseActivity() {
         Log.e("Task List Name", taskListName)
 
         // Create and Assign the task details
-        val task = Task(taskListName, FirestoreClass().getCurrentUserID())
+        val task = Task(taskListName, getCurrentUserID())
 
         mBoardDetails.taskList.add(0, task) // Add task to the first position of ArrayList
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1) // Remove the last position as we have added the item manually for adding the TaskList.
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+        addUpdateTaskList()
     }
 
     /**
@@ -139,9 +131,7 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList[position] = task
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+        addUpdateTaskList()
     }
 
     /**
@@ -153,9 +143,7 @@ class TaskListActivity : BaseActivity() {
 
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+        addUpdateTaskList()
     }
 
     /**
@@ -167,8 +155,7 @@ class TaskListActivity : BaseActivity() {
 
         // Here get the updated board details.
         // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getBoardDetails(this@TaskListActivity, mBoardDetails.documentId)
+        getBoardDetails(mBoardDetails.documentId)
     }
 
     /**
@@ -180,9 +167,9 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
-        cardAssignedUsersList.add(FirestoreClass().getCurrentUserID())
+        cardAssignedUsersList.add(getCurrentUserID())
 
-        val card = Card(cardName, FirestoreClass().getCurrentUserID(), cardAssignedUsersList)
+        val card = Card(cardName, getCurrentUserID(), cardAssignedUsersList)
 
         val cardsList = mBoardDetails.taskList[position].cards
         cardsList.add(card)
@@ -195,9 +182,7 @@ class TaskListActivity : BaseActivity() {
 
         mBoardDetails.taskList[position] = task
 
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+        addUpdateTaskList()
     }
 
     /**
@@ -244,9 +229,32 @@ class TaskListActivity : BaseActivity() {
 
         mBoardDetails.taskList[taskListPosition].cards = cards
 
+        addUpdateTaskList()
+    }
+
+    private fun getAssignedMembersListDetails() {
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@TaskListActivity, mBoardDetails)
+        firestore.getAssignedMembersListDetails(
+            mBoardDetails.assignedTo,
+            { usersList -> boardMembersDetailList(usersList) },
+            { hideProgressDialog() }
+        )
+    }
+
+    private fun getBoardDetails(boardId: String) {
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.getBoardDetails(boardId,
+            { board -> boardDetails(board) },
+            { hideProgressDialog() })
+    }
+
+    private fun addUpdateTaskList() {
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.addUpdateTaskList(mBoardDetails,
+            { addUpdateTaskListSuccess() },
+            { hideProgressDialog() })
     }
 
     /**
