@@ -14,10 +14,10 @@ class LabelColorListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<String>,
     private val mSelectedColor: String,
-    private val onClick: (position: Int, color: String)-> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val onClick: (position: Int, color: String) -> Unit
+) : RecyclerView.Adapter<LabelColorListItemsAdapter.MyViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_label_color,
@@ -27,28 +27,20 @@ class LabelColorListItemsAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val item = list[position]
 
-        if (holder is MyViewHolder) {
+        holder.itemView.view_main.setBackgroundColor(Color.parseColor(item))
 
-            holder.itemView.view_main.setBackgroundColor(Color.parseColor(item))
+        holder.itemView.iv_selected_color.visibility =
+            if (item == mSelectedColor) View.VISIBLE else View.GONE
 
-            if (item == mSelectedColor) {
-                holder.itemView.iv_selected_color.visibility = View.VISIBLE
-            } else {
-                holder.itemView.iv_selected_color.visibility = View.GONE
-            }
-
-            holder.itemView.setOnClickListener {
-                onClick(position, item)
-            }
+        holder.itemView.setOnClickListener {
+            onClick(position, item)
         }
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount() = list.size
 
-    private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 }

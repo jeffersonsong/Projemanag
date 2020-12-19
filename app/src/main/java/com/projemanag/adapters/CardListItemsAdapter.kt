@@ -16,8 +16,8 @@ import kotlinx.android.synthetic.main.item_card.view.*
 open class CardListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Card>,
-    private val onClick: (cardPosition: Int)->Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val onClick: (cardPosition: Int) -> Unit
+) : RecyclerView.Adapter<CardListItemsAdapter.MyViewHolder>() {
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -25,8 +25,7 @@ open class CardListItemsAdapter(
      * create a new
      * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_card,
@@ -46,77 +45,63 @@ open class CardListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val model = list[position]
 
-        if (holder is MyViewHolder) {
+        if (model.labelColor.isNotEmpty()) {
+            holder.itemView.view_label_color.visibility = View.VISIBLE
+            holder.itemView.view_label_color.setBackgroundColor(Color.parseColor(model.labelColor))
+        } else {
+            holder.itemView.view_label_color.visibility = View.GONE
+        }
 
-            if (model.labelColor.isNotEmpty()) {
-                holder.itemView.view_label_color.visibility = View.VISIBLE
-                holder.itemView.view_label_color.setBackgroundColor(Color.parseColor(model.labelColor))
-            } else {
-                holder.itemView.view_label_color.visibility = View.GONE
-            }
+        holder.itemView.tv_card_name.text = model.name
 
-            holder.itemView.tv_card_name.text = model.name
+        if ((context as TaskListActivity).mAssignedMembersDetailList.size > 0) {
+            // A instance of selected members list.
+            val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
 
-            if ((context as TaskListActivity).mAssignedMembersDetailList.size > 0) {
-                // A instance of selected members list.
-                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+            // Here we got the detail list of members and add it to the selected members list as required.
+            for (i in context.mAssignedMembersDetailList.indices) {
+                for (j in model.assignedTo) {
+                    if (context.mAssignedMembersDetailList[i].id == j) {
+                        val selectedMember = SelectedMembers(
+                            context.mAssignedMembersDetailList[i].id,
+                            context.mAssignedMembersDetailList[i].image
+                        )
 
-                // Here we got the detail list of members and add it to the selected members list as required.
-                for (i in context.mAssignedMembersDetailList.indices) {
-                    for (j in model.assignedTo) {
-                        if (context.mAssignedMembersDetailList[i].id == j) {
-                            val selectedMember = SelectedMembers(
-                                context.mAssignedMembersDetailList[i].id,
-                                context.mAssignedMembersDetailList[i].image
-                            )
-
-                            selectedMembersList.add(selectedMember)
-                        }
+                        selectedMembersList.add(selectedMember)
                     }
                 }
+            }
 
-                if (selectedMembersList.size > 0) {
-
-                    if (selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy) {
-                        holder.itemView.rv_card_selected_members_list.visibility = View.GONE
-                    } else {
-                        holder.itemView.rv_card_selected_members_list.visibility = View.VISIBLE
-
-                        holder.itemView.rv_card_selected_members_list.layoutManager =
-                            GridLayoutManager(context, 4)
-                        val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
-                            onClick(position)
-                        }
-                        holder.itemView.rv_card_selected_members_list.adapter = adapter
-                    }
-                } else {
+            if (selectedMembersList.size > 0) {
+                if (selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy) {
                     holder.itemView.rv_card_selected_members_list.visibility = View.GONE
-                }
-            }
+                } else {
+                    holder.itemView.rv_card_selected_members_list.visibility = View.VISIBLE
 
-            holder.itemView.setOnClickListener {
-                onClick(position)
+                    holder.itemView.rv_card_selected_members_list.layoutManager =
+                        GridLayoutManager(context, 4)
+                    val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
+                        onClick(position)
+                    }
+                    holder.itemView.rv_card_selected_members_list.adapter = adapter
+                }
+            } else {
+                holder.itemView.rv_card_selected_members_list.visibility = View.GONE
             }
+        }
+
+        holder.itemView.setOnClickListener {
+            onClick(position)
         }
     }
 
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-
-    /**
-     * An interface for onclick items.
-     */
-    interface OnClickListener {
-        fun onClick(cardPosition: Int)
-    }
+    override fun getItemCount() = list.size
 
     /**
      * A ViewHolder describes an item view and metadata about its place within the RecyclerView.

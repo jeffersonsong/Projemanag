@@ -14,8 +14,8 @@ open class CardMemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<SelectedMembers>,
     private val assignMembers: Boolean,
-    private val onClick: ()->Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val onClick: () -> Unit
+) : RecyclerView.Adapter<CardMemberListItemsAdapter.MyViewHolder>() {
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -23,7 +23,7 @@ open class CardMemberListItemsAdapter(
      * create a new
      * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_card_selected_member,
@@ -43,45 +43,33 @@ open class CardMemberListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val model = list[position]
 
-        if (holder is MyViewHolder) {
+        if (position == list.size - 1 && assignMembers) {
+            holder.itemView.iv_add_member.visibility = View.VISIBLE
+            holder.itemView.iv_selected_member_image.visibility = View.GONE
+        } else {
+            holder.itemView.iv_add_member.visibility = View.GONE
+            holder.itemView.iv_selected_member_image.visibility = View.VISIBLE
 
-            if (position == list.size - 1 && assignMembers) {
-                holder.itemView.iv_add_member.visibility = View.VISIBLE
-                holder.itemView.iv_selected_member_image.visibility = View.GONE
-            } else {
-                holder.itemView.iv_add_member.visibility = View.GONE
-                holder.itemView.iv_selected_member_image.visibility = View.VISIBLE
+            Glide
+                .with(context)
+                .load(model.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_user_place_holder)
+                .into(holder.itemView.iv_selected_member_image)
+        }
 
-                Glide
-                    .with(context)
-                    .load(model.image)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_user_place_holder)
-                    .into(holder.itemView.iv_selected_member_image)
-            }
-
-            holder.itemView.setOnClickListener {
-                onClick()
-            }
+        holder.itemView.setOnClickListener {
+            onClick()
         }
     }
 
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-    /**
-     * An interface for onclick items.
-     */
-    interface OnClickListener {
-        fun onClick()
-    }
+    override fun getItemCount() = list.size
 
     /**
      * A ViewHolder describes an item view and metadata about its place within the RecyclerView.

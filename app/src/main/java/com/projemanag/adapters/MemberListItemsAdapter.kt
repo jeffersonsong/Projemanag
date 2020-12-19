@@ -15,7 +15,7 @@ open class MemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<User>,
     private val onClick: (position: Int, user: User, action: String) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<MemberListItemsAdapter.MyViewHolder>() {
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -23,7 +23,7 @@ open class MemberListItemsAdapter(
      * create a new
      * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_member,
@@ -43,33 +43,30 @@ open class MemberListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val model = list[position]
 
-        if (holder is MyViewHolder) {
+        Glide
+            .with(context)
+            .load(model.image)
+            .centerCrop()
+            .placeholder(R.drawable.ic_user_place_holder)
+            .into(holder.itemView.iv_member_image)
 
-            Glide
-                .with(context)
-                .load(model.image)
-                .centerCrop()
-                .placeholder(R.drawable.ic_user_place_holder)
-                .into(holder.itemView.iv_member_image)
+        holder.itemView.tv_member_name.text = model.name
+        holder.itemView.tv_member_email.text = model.email
 
-            holder.itemView.tv_member_name.text = model.name
-            holder.itemView.tv_member_email.text = model.email
+        if (model.selected) {
+            holder.itemView.iv_selected_member.visibility = View.VISIBLE
+        } else {
+            holder.itemView.iv_selected_member.visibility = View.GONE
+        }
 
+        holder.itemView.setOnClickListener {
             if (model.selected) {
-                holder.itemView.iv_selected_member.visibility = View.VISIBLE
+                onClick(position, model, Constants.UN_SELECT)
             } else {
-                holder.itemView.iv_selected_member.visibility = View.GONE
-            }
-
-            holder.itemView.setOnClickListener {
-                if (model.selected) {
-                    onClick(position, model, Constants.UN_SELECT)
-                } else {
-                    onClick(position, model, Constants.SELECT)
-                }
+                onClick(position, model, Constants.SELECT)
             }
         }
     }
@@ -77,16 +74,7 @@ open class MemberListItemsAdapter(
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-    /**
-     * An interface for onclick items.
-     */
-    interface OnClickListener {
-        fun onClick(position: Int, user: User, action: String)
-    }
+    override fun getItemCount() = list.size
 
     /**
      * A ViewHolder describes an item view and metadata about its place within the RecyclerView.

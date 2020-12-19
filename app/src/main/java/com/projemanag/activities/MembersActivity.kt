@@ -107,7 +107,7 @@ class MembersActivity : BaseActivity() {
         rv_members_list.setHasFixedSize(true)
 
         val adapter = MemberListItemsAdapter(this@MembersActivity, list) {
-            position, user, action ->  
+            position, user, action ->
         }
         rv_members_list.adapter = adapter
     }
