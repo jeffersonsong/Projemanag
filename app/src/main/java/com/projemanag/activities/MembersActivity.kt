@@ -51,15 +51,7 @@ class MembersActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-        setSupportActionBar(toolbar_members_activity)
-
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-        }
-
-        toolbar_members_activity.setNavigationOnClickListener { onBackPressed() }
+        setupActionBar(toolbar_members_activity)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -46,17 +46,7 @@ class TaskListActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-
-        setSupportActionBar(toolbar_task_list_activity)
-
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = mBoardDetails.name
-        }
-
-        toolbar_task_list_activity.setNavigationOnClickListener { onBackPressed() }
+        setupActionBar(toolbar_task_list_activity, mBoardDetails.name)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

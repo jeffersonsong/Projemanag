@@ -112,17 +112,8 @@ class CardDetailsActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-        setSupportActionBar(toolbar_card_details_activity)
-
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
-            actionBar.title = card.name
-        }
-
-        toolbar_card_details_activity.setNavigationOnClickListener { onBackPressed() }
+        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        setupActionBar(toolbar_card_details_activity, card.name)
     }
 
     // A function to get all the data that is sent through intent.

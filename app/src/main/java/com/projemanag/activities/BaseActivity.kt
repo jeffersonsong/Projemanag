@@ -4,10 +4,12 @@ import android.app.Dialog
 import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.projemanag.R
 import com.projemanag.firebase.FirebaseAuthClass
+import kotlinx.android.synthetic.main.activity_members.*
 import kotlinx.android.synthetic.main.dialog_progress.*
 
 open class BaseActivity : AppCompatActivity() {
@@ -77,5 +79,23 @@ open class BaseActivity : AppCompatActivity() {
 
     fun getCurrentUserID(): String {
         return authentication.getCurrentUserID()
+    }
+
+    /**
+     * A function to setup action bar
+     */
+    fun setupActionBar(toolbar: Toolbar, title: String? = null) {
+        setSupportActionBar(toolbar)
+
+        val actionBar = supportActionBar
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
+            if (title != null) {
+                actionBar.title = title
+            }
+        }
+
+        toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 }
