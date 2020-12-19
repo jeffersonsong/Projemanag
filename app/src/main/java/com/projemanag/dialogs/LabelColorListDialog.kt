@@ -33,16 +33,12 @@ abstract class LabelColorListDialog(
     private fun setUpRecyclerView(view: View) {
         view.tvTitle.text = title
         view.rvList.layoutManager = LinearLayoutManager(context)
-        adapter = LabelColorListItemsAdapter(context, list, mSelectedColor)
-        view.rvList.adapter = adapter
-
-        adapter!!.onItemClickListener = object : LabelColorListItemsAdapter.OnItemClickListener {
-
-            override fun onClick(position: Int, color: String) {
-                dismiss()
-                onItemSelected(color)
-            }
+        adapter = LabelColorListItemsAdapter(context, list, mSelectedColor) {
+            position, color->
+            dismiss()
+            onItemSelected(color)
         }
+        view.rvList.adapter = adapter
     }
 
     protected abstract fun onItemSelected(color: String)

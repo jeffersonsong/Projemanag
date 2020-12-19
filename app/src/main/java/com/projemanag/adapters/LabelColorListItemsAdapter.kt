@@ -13,10 +13,9 @@ import java.util.*
 class LabelColorListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<String>,
-    private val mSelectedColor: String
+    private val mSelectedColor: String,
+    private val onClick: (position: Int, color: String)-> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    var onItemClickListener: OnItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
@@ -42,10 +41,7 @@ class LabelColorListItemsAdapter(
             }
 
             holder.itemView.setOnClickListener {
-
-                if (onItemClickListener != null) {
-                    onItemClickListener!!.onClick(position, item)
-                }
+                onClick(position, item)
             }
         }
     }
@@ -55,9 +51,4 @@ class LabelColorListItemsAdapter(
     }
 
     private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
-    interface OnItemClickListener {
-
-        fun onClick(position: Int, color: String)
-    }
 }
