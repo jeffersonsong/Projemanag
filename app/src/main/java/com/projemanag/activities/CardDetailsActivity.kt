@@ -51,10 +51,11 @@ class CardDetailsActivity : BaseActivity() {
 
         setupActionBar()
 
-        et_name_card_details.setText(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name)
+        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        et_name_card_details.setText(card.name)
         et_name_card_details.setSelection(et_name_card_details.text.toString().length) // The cursor after the string length
 
-        mSelectedColor = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].labelColor
+        mSelectedColor = card.labelColor
         if (mSelectedColor.isNotEmpty()) {
             setColor()
         }
@@ -69,11 +70,9 @@ class CardDetailsActivity : BaseActivity() {
             membersListDialog()
         }
 
-        mSelectedDueDateMilliSeconds =
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].dueDate
+        mSelectedDueDateMilliSeconds = card.dueDate
         if (mSelectedDueDateMilliSeconds > 0) {
-            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
+            val selectedDate = dateFormat().format(Date(mSelectedDueDateMilliSeconds))
             tv_select_due_date.text = selectedDate
         }
 
@@ -228,14 +227,6 @@ class CardDetailsActivity : BaseActivity() {
         addUpdateTaskList()
     }
 
-    private fun addUpdateTaskList() {
-        // Show the progress dialog.
-        showProgressDialog(resources.getString(R.string.please_wait))
-        firestore.addUpdateTaskList(mBoardDetails,
-            { addUpdateTaskListSuccess() },
-            { hideProgressDialog() })
-    }
-
     /**
      * A function to remove the text and set the label color to the TextView.
      */
@@ -280,8 +271,8 @@ class CardDetailsActivity : BaseActivity() {
     private fun membersListDialog() {
 
         // Here we get the updated assigned members list
-        val cardAssignedMembersList =
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
+        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val cardAssignedMembersList = card.assignedTo
 
         if (cardAssignedMembersList.size > 0) {
             // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
@@ -306,18 +297,11 @@ class CardDetailsActivity : BaseActivity() {
             override fun onItemSelected(user: User, action: String) {
 
                 if (action == Constants.SELECT) {
-                    if (!mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.contains(
-                            user.id
-                        )
-                    ) {
-                        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.add(
-                            user.id
-                        )
+                    if (!card.assignedTo.contains(user.id)) {
+                        card.assignedTo.add(user.id)
                     }
                 } else {
-                    mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.remove(
-                        user.id
-                    )
+                    card.assignedTo.remove(user.id)
 
                     for (i in mMembersDetailList.indices) {
                         if (mMembersDetailList[i].id == user.id) {
@@ -397,12 +381,7 @@ class CardDetailsActivity : BaseActivity() {
         val month = c.get(Calendar.MONTH) // This indicates the Month
         val day = c.get(Calendar.DAY_OF_MONTH) // This indicates the Day
 
-        /**
-         * Creates a new date picker dialog for the specified date using the parent
-         * context's default date picker dialog theme.
-         */
-        val dpd = DatePickerDialog(
-            this,
+        val onDateSetListener =
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
                 /*
                   The listener used to indicate the user has finished selecting a date.
@@ -432,7 +411,7 @@ class CardDetailsActivity : BaseActivity() {
                  * selected date in the format which we pass it as an parameter and Locale.
                  * Here I have passed the format as dd/MM/yyyy.
                  */
-                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                val sdf = dateFormat()
 
                 // The formatter will parse the selected date in to Date object
                 // so we can simply get date in to milliseconds.
@@ -444,11 +423,24 @@ class CardDetailsActivity : BaseActivity() {
                 /** Here we have get the time in milliSeconds from Date object
                  */
                 mSelectedDueDateMilliSeconds = theDate!!.time
-            },
-            year,
-            month,
-            day
-        )
+            }
+
+        /**
+         * Creates a new date picker dialog for the specified date using the parent
+         * context's default date picker dialog theme.
+         */
+        val dpd = DatePickerDialog(this, onDateSetListener, year, month, day)
         dpd.show() // It is used to show the datePicker Dialog.
+    }
+
+
+    private fun dateFormat() = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+
+    private fun addUpdateTaskList() {
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        firestore.addUpdateTaskList(mBoardDetails,
+            { addUpdateTaskListSuccess() },
+            { hideProgressDialog() })
     }
 }

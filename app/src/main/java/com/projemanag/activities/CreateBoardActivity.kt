@@ -208,6 +208,17 @@ class CreateBoardActivity : BaseActivity() {
         createBoard(board)
     }
 
+    /**
+     * A function for notifying the board is created successfully.
+     */
+    fun boardCreatedSuccessfully() {
+
+        hideProgressDialog()
+
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+
     private fun createBoard(board: Board) {
         firestore.createBoard(
             board,
@@ -221,16 +232,5 @@ class CreateBoardActivity : BaseActivity() {
                 boardCreatedSuccessfully()
             },
             { hideProgressDialog() })
-    }
-
-    /**
-     * A function for notifying the board is created successfully.
-     */
-    fun boardCreatedSuccessfully() {
-
-        hideProgressDialog()
-
-        setResult(Activity.RESULT_OK)
-        finish()
     }
 }

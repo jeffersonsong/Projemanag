@@ -11,6 +11,7 @@ import com.projemanag.firebase.FirestoreClass
 import kotlinx.android.synthetic.main.activity_splash.*
 
 class SplashActivity : AppCompatActivity() {
+    private val firestore = FirestoreClass()
 
     /**
      * This function is auto created by Android when the Activity Class is created.
@@ -53,5 +54,5 @@ class SplashActivity : AppCompatActivity() {
         }, 2500) // Here we pass the delay time in milliSeconds after which the splash activity will disappear.
     }
 
-    private fun getCurrentUserID() = FirestoreClass().getCurrentUserID()
+    private fun getCurrentUserID() = firestore.getCurrentUserID()
 }

@@ -191,7 +191,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
      * A function to update the user's FCM token into the database.
      */
     private fun updateFCMToken(token: String) {
-
         val userHashMap = HashMap<String, Any>()
         userHashMap[Constants.FCM_TOKEN] = token
 
