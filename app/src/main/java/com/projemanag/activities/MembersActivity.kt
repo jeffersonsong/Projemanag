@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.projemanag.R
 import com.projemanag.adapters.MemberListItemsAdapter
@@ -33,7 +32,7 @@ class MembersActivity : BaseActivity() {
         setContentView(R.layout.activity_members)
 
         if (intent.hasExtra(Constants.BOARD_DETAIL)) {
-            mBoardDetails = intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!
+            mBoardDetails = intent.getParcelableExtra(Constants.BOARD_DETAIL)!!
         }
 
         setupActionBar()
@@ -74,7 +73,7 @@ class MembersActivity : BaseActivity() {
     /**
      * A function to setup assigned members list into recyclerview.
      */
-    fun setupMembersList(list: ArrayList<User>) {
+    private fun setupMembersList(list: ArrayList<User>) {
         mAssignedMembersList = list
         hideProgressDialog()
         rv_members_list.layoutManager = LinearLayoutManager(this@MembersActivity)
@@ -92,7 +91,7 @@ class MembersActivity : BaseActivity() {
         /*Set the screen content from a layout resource.
           The resource will be inflated, adding all top-level views to the screen.*/
         dialog.setContentView(R.layout.dialog_search_member)
-        dialog.tv_add.setOnClickListener(View.OnClickListener {
+        dialog.tv_add.setOnClickListener {
             val email = dialog.et_email_search_member.text.toString()
             if (email.isNotEmpty()) {
                 dialog.dismiss()
@@ -100,15 +99,15 @@ class MembersActivity : BaseActivity() {
             } else {
                 showErrorSnackBar("Please enter members email address.")
             }
-        })
-        dialog.tv_cancel.setOnClickListener(View.OnClickListener {
+        }
+        dialog.tv_cancel.setOnClickListener {
             dialog.dismiss()
-        })
+        }
         //Start the dialog and display it on screen.
         dialog.show()
     }
 
-    fun memberDetails(user: User) {
+    private fun memberDetails(user: User) {
         mBoardDetails.assignedTo.add(user.id)
         assignMemberToBoard(user)
     }
@@ -116,7 +115,7 @@ class MembersActivity : BaseActivity() {
     /**
      * A function to get the result of assigning the members.
      */
-    fun memberAssignSuccess(user: User) {
+    private fun memberAssignSuccess(user: User) {
         hideProgressDialog()
         mAssignedMembersList.add(user)
         anyChangesDone = true

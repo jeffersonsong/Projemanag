@@ -131,7 +131,7 @@ class MyProfileActivity : BaseActivity() {
     /**
      * A function to set the existing details in UI.
      */
-    fun setUserDataInUI(user: User) {
+    private fun setUserDataInUI(user: User) {
         // Initialize the user details variable
         mUserDetails = user
 
@@ -174,7 +174,7 @@ class MyProfileActivity : BaseActivity() {
     /**
      * A function to notify the user profile is updated successfully.
      */
-    fun profileUpdateSuccess() {
+    private fun profileUpdateSuccess() {
         hideProgressDialog()
 
         Toast.makeText(this@MyProfileActivity, "Profile updated successfully!", Toast.LENGTH_SHORT)

@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.projemanag.activities
 
 import android.app.Dialog
@@ -24,7 +26,7 @@ open class BaseActivity : AppCompatActivity() {
     /**
      * This function is used to show the progress dialog with the title and message to user.
      */
-    fun showProgressDialog(text: String) {
+    private fun showProgressDialog(text: String) {
         mProgressDialog = Dialog(this)
 
         /*Set the screen content from a layout resource.
@@ -91,9 +93,7 @@ open class BaseActivity : AppCompatActivity() {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            if (title != null) {
-                actionBar.title = title
-            }
+            title?.let { actionBar.title = it }
         }
 
         toolbar.setNavigationOnClickListener { onBackPressed() }

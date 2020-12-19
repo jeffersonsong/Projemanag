@@ -11,8 +11,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.projemanag.R
 import com.projemanag.firebase.FirebaseStorageClass
 import com.projemanag.firebase.FirestoreClass
@@ -186,7 +184,7 @@ class CreateBoardActivity : BaseActivity() {
     /**
      * A function for notifying the board is created successfully.
      */
-    fun boardCreatedSuccessfully() {
+    private fun boardCreatedSuccessfully() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()

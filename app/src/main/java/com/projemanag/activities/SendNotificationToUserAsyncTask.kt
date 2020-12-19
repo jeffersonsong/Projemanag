@@ -26,9 +26,9 @@ import java.net.URL
  */
 @SuppressLint("StaticFieldLeak")
 class SendNotificationToUserAsyncTask(
-    val boardName: String,
-    val token: String,
-    val assignedBy: String,
+    private val boardName: String,
+    private val token: String,
+    private val assignedBy: String,
     val preExecution: () -> Unit,
     val postExecution: () -> Unit
 ) : AsyncTask<Any, Void, String>() {
@@ -39,7 +39,7 @@ class SendNotificationToUserAsyncTask(
      */
     override fun onPreExecute() {
         super.onPreExecute()
-        preExecution();
+        preExecution()
     }
 
     /**

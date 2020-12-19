@@ -101,16 +101,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         editor.apply()
     }
 
-    // TODO (Step 6: Change the notification definition as add the parameters for title and message.)
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param messageBody FCM message body received.
+     * @param title title.
+     * @param message FCM message body received.
      */
     private fun sendNotification(title: String, message: String) {
-
-        // TODO (Step 9: Now once the notification is received and visible in the notification tray than we can navigate them into the app as per requirement.)
-        // START
         // As here we will navigate them to the main screen if user is already logged in or to the login screen.
         val intent: Intent = if (getCurrentUserID().isNotEmpty()) {
             Intent(this, MainActivity::class.java)
@@ -132,11 +129,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_stat_ic_notification)
-            // TODO (Step 8: Set the title and message for the notification which will be visible in the notification tray.)
-            // START
             .setContentTitle(title)
             .setContentText(message)
-            // END
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)

@@ -65,21 +65,25 @@ class SignInActivity : BaseActivity() {
      * A function to validate the entries of a user.
      */
     private fun validateForm(email: String, password: String): Boolean {
-        return if (TextUtils.isEmpty(email)) {
-            showErrorSnackBar("Please enter email.")
-            false
-        } else if (TextUtils.isEmpty(password)) {
-            showErrorSnackBar("Please enter password.")
-            false
-        } else {
-            true
+        return when {
+            TextUtils.isEmpty(email) -> {
+                showErrorSnackBar("Please enter email.")
+                false
+            }
+            TextUtils.isEmpty(password) -> {
+                showErrorSnackBar("Please enter password.")
+                false
+            }
+            else -> {
+                true
+            }
         }
     }
 
     /**
      * A function to get the user details from the firestore database after authentication.
      */
-    fun signInSuccess(user: User) {
+    private fun signInSuccess(user: User) {
         hideProgressDialog()
         startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         this.finish()

@@ -85,7 +85,7 @@ class SignUpActivity : BaseActivity() {
     /**
      * A function to be called the user is registered successfully and entry is made in the firestore database.
      */
-    fun userRegisteredSuccess() {
+    private fun userRegisteredSuccess() {
 
         Toast.makeText(
             this@SignUpActivity,
@@ -116,11 +116,7 @@ class SignUpActivity : BaseActivity() {
             name, email, password,
             { user -> registerUser(user) },
             { e ->
-                Toast.makeText(
-                    this@SignUpActivity,
-                    e!!.message,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@SignUpActivity, e.message, Toast.LENGTH_SHORT).show()
             })
     }
 

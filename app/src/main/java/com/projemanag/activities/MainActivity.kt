@@ -157,7 +157,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to get the current user details from firebase.
      */
-    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean = false) {
+    private fun updateNavigationUserDetails(user: User, readBoardsList: Boolean = false) {
 
         hideProgressDialog()
 
@@ -202,7 +202,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to populate the result of BOARDS list in the UI i.e in the recyclerView.
      */
-    fun populateBoardsListToUI(boardsList: ArrayList<Board>) {
+    private fun populateBoardsListToUI(boardsList: ArrayList<Board>) {
         hideProgressDialog()
         if (boardsList.isNotEmpty()) {
 
@@ -230,7 +230,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     /**
      * A function to notify the token is updated successfully in the database.
      */
-    fun tokenUpdateSuccess() {
+    private fun tokenUpdateSuccess() {
         hideProgressDialog()
         // Here we have added a another value in shared preference that the token is updated in the database successfully.
         // So we don't need to update it every time.

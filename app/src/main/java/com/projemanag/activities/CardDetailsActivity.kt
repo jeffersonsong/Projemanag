@@ -136,7 +136,7 @@ class CardDetailsActivity : BaseActivity() {
     /**
      * A function to get the result of add or updating the task list.
      */
-    fun addUpdateTaskListSuccess() {
+    private fun addUpdateTaskListSuccess() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()
@@ -147,7 +147,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun updateCardDetails() {
         val name = et_name_card_details.text.toString()
-        var mCard = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val mCard = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
 
         // Here we have updated the card name using the data model class.
         val card = Card(

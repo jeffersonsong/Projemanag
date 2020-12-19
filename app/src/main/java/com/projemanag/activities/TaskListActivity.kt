@@ -83,7 +83,7 @@ class TaskListActivity : BaseActivity() {
     /**
      * A function to get the result of Board Detail.
      */
-    fun boardDetails(board: Board) {
+    private fun boardDetails(board: Board) {
 
         mBoardDetails = board
 
@@ -139,7 +139,7 @@ class TaskListActivity : BaseActivity() {
     /**
      * A function to get the result of add or updating the task list.
      */
-    fun addUpdateTaskListSuccess() {
+    private fun addUpdateTaskListSuccess() {
 
         hideProgressDialog()
 
@@ -190,7 +190,7 @@ class TaskListActivity : BaseActivity() {
     /**
      * A function to get assigned members detail list.
      */
-    fun boardMembersDetailList(list: ArrayList<User>) {
+    private fun boardMembersDetailList(list: ArrayList<User>) {
         mAssignedMembersDetailList = list
 
         hideProgressDialog()

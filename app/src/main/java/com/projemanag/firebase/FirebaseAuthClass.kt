@@ -1,7 +1,5 @@
 package com.projemanag.firebase
 
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.projemanag.model.User
@@ -46,27 +44,23 @@ class FirebaseAuthClass {
         onFailure: (Exception) -> Unit
     ) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(
-                OnCompleteListener<AuthResult> { task ->
+            .addOnCompleteListener { task ->
+                // If the registration is successfully done
+                if (task.isSuccessful) {
+                    // Firebase registered user
+                    val firebaseUser: FirebaseUser = task.result!!.user!!
+                    // Registered Email
+                    val registeredEmail = firebaseUser.email!!
+                    val user = User(
+                        firebaseUser.uid, name, registeredEmail
+                    )
 
-                    // If the registration is successfully done
-                    if (task.isSuccessful) {
-
-                        // Firebase registered user
-                        val firebaseUser: FirebaseUser = task.result!!.user!!
-                        // Registered Email
-                        val registeredEmail = firebaseUser.email!!
-
-                        val user = User(
-                            firebaseUser.uid, name, registeredEmail
-                        )
-
-                        // call the registerUser function of FirestoreClass to make an entry in the database.
-                        onSuccess(user)
-                    } else {
-                        onFailure(task.exception!!)
-                    }
-                })
+                    // call the registerUser function of FirestoreClass to make an entry in the database.
+                    onSuccess(user)
+                } else {
+                    onFailure(task.exception!!)
+                }
+            }
     }
 
     fun signOut() {

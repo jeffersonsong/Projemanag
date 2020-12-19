@@ -150,13 +150,6 @@ open class TaskListItemsAdapter(
         }
         view.rv_card_list.adapter = adapter
 
-        /**
-         * Creates a divider {@link RecyclerView.ItemDecoration} that can be used with a
-         * {@link LinearLayoutManager}.
-         *
-         * @param context Current context, it will be used to access resources.
-         * @param orientation Divider orientation. Should be {@link #HORIZONTAL} or {@link #VERTICAL}.
-         */
         val dividerItemDecoration =
             DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         view.rv_card_list.addItemDecoration(dividerItemDecoration)
