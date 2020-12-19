@@ -5,14 +5,15 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.WindowManager
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
 import com.projemanag.R
+import com.projemanag.firebase.FirebaseAuthClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.User
 import kotlinx.android.synthetic.main.activity_sign_in.*
 
 class SignInActivity : BaseActivity() {
     private val firestore = FirestoreClass()
+
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -64,19 +65,14 @@ class SignInActivity : BaseActivity() {
             showProgressDialog(resources.getString(R.string.please_wait))
 
             // Sign-In using FirebaseAuth
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Calling the FirestoreClass signInUser function to get the data of user from database.
-                        loadUserData()
-                    } else {
-                        Toast.makeText(
-                            this@SignInActivity,
-                            task.exception!!.message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+            FirebaseAuthClass().signInWithEmailAndPassword(email, password,
+                { loadUserData() }, { e ->
+                    Toast.makeText(
+                        this@SignInActivity,
+                        e.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                })
         }
     }
 

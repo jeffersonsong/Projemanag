@@ -14,10 +14,10 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import com.projemanag.R
 import com.projemanag.adapters.BoardItemsAdapter
+import com.projemanag.firebase.FirebaseAuthClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.Board
 import com.projemanag.model.User
@@ -97,7 +97,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             R.id.nav_sign_out -> {
                 // Here sign outs the user from firebase in this device.
-                FirebaseAuth.getInstance().signOut()
+                FirebaseAuthClass().signOut()
 
                 mSharedPreferences.edit().clear().apply()
 

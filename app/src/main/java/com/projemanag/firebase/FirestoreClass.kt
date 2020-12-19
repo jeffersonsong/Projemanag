@@ -1,7 +1,6 @@
 package com.projemanag.firebase
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.projemanag.model.Board
@@ -277,15 +276,6 @@ class FirestoreClass {
      * A function for getting the user id of current logged user.
      */
     fun getCurrentUserID(): String {
-        // An Instance of currentUser using FirebaseAuth
-        val currentUser = FirebaseAuth.getInstance().currentUser
-
-        // A variable to assign the currentUserId if it is not null or else it will be blank.
-        var currentUserID = ""
-        if (currentUser != null) {
-            currentUserID = currentUser.uid
-        }
-
-        return currentUserID
+        return FirebaseAuthClass().getCurrentUserID()
     }
 }
