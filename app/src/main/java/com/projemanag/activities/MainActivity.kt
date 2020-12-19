@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val firestore = FirestoreClass()
+    private val authentication = FirebaseAuthClass()
 
     // A global variable for User Name
     private lateinit var mUserName: String
@@ -97,7 +98,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             R.id.nav_sign_out -> {
                 // Here sign outs the user from firebase in this device.
-                FirebaseAuthClass().signOut()
+                signOut()
 
                 mSharedPreferences.edit().clear().apply()
 
@@ -267,6 +268,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         firestore.updateUserProfileData(
             userHashMap,
             { tokenUpdateSuccess() }, { hideProgressDialog() })
+    }
+
+    private fun signOut() {
+        authentication.signOut()
     }
 
     /**

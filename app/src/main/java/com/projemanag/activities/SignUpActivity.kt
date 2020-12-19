@@ -12,7 +12,8 @@ import kotlinx.android.synthetic.main.activity_sign_up.*
 
 class SignUpActivity : BaseActivity() {
     private val firestore = FirestoreClass()
-
+    private val authentication = FirebaseAuthClass()
+    
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -63,17 +64,7 @@ class SignUpActivity : BaseActivity() {
         val password: String = et_password.text.toString().trim { it <= ' ' }
 
         if (validateForm(name, email, password)) {
-            // Show the progress dialog.
-            showProgressDialog(resources.getString(R.string.please_wait))
-            FirebaseAuthClass().createUserWithEmailAndPassword(name, email, password,
-                { user -> registerUser(user) },
-                { e ->
-                    Toast.makeText(
-                        this@SignUpActivity,
-                        e!!.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                })
+            createUserWithEmailAndPassword(name, email, password)
         }
     }
 
@@ -118,9 +109,28 @@ class SignUpActivity : BaseActivity() {
          * Here the new user registered is automatically signed-in so we just sign-out the user from firebase
          * and send him to Intro Screen for Sign-In
          */
-        FirebaseAuthClass().signOut()
+        signOut()
         // Finish the Sign-Up Screen
         finish()
+    }
+
+    private fun createUserWithEmailAndPassword(
+        name: String,
+        email: String,
+        password: String
+    ) {
+        // Show the progress dialog.
+        showProgressDialog(resources.getString(R.string.please_wait))
+        authentication.createUserWithEmailAndPassword(
+            name, email, password,
+            { user -> registerUser(user) },
+            { e ->
+                Toast.makeText(
+                    this@SignUpActivity,
+                    e!!.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
     }
 
     private fun registerUser(user: User) {
@@ -128,5 +138,9 @@ class SignUpActivity : BaseActivity() {
             user,
             { userRegisteredSuccess() },
             { e -> hideProgressDialog() })
+    }
+
+    private fun signOut() {
+        authentication.signOut()
     }
 }

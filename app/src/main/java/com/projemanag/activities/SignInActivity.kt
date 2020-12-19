@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_sign_in.*
 
 class SignInActivity : BaseActivity() {
     private val firestore = FirestoreClass()
+    private val authentication = FirebaseAuthClass()
 
     /**
      * This function is auto created by Android when the Activity Class is created.
@@ -65,14 +66,7 @@ class SignInActivity : BaseActivity() {
             showProgressDialog(resources.getString(R.string.please_wait))
 
             // Sign-In using FirebaseAuth
-            FirebaseAuthClass().signInWithEmailAndPassword(email, password,
-                { loadUserData() }, { e ->
-                    Toast.makeText(
-                        this@SignInActivity,
-                        e.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                })
+            signInWithEmailAndPassword(email, password)
         }
     }
 
@@ -102,10 +96,21 @@ class SignInActivity : BaseActivity() {
         this.finish()
     }
 
+    private fun signInWithEmailAndPassword(email: String, password: String) {
+        authentication.signInWithEmailAndPassword(
+            email, password,
+            { loadUserData() }, { e ->
+                Toast.makeText(
+                    this@SignInActivity,
+                    e.message,
+                    Toast.LENGTH_LONG
+                ).show()
+            })
+    }
+
     private fun loadUserData() {
         firestore.loadUserData(
             { user -> signInSuccess(user) },
             { hideProgressDialog() })
     }
-
 }

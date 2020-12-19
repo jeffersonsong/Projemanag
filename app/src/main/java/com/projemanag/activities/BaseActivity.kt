@@ -12,6 +12,8 @@ import kotlinx.android.synthetic.main.dialog_progress.*
 
 open class BaseActivity : AppCompatActivity() {
 
+    private val authentication = FirebaseAuthClass()
+
     private var doubleBackToExitPressedOnce = false
 
     /**
@@ -42,10 +44,6 @@ open class BaseActivity : AppCompatActivity() {
         mProgressDialog.dismiss()
     }
 
-    fun getCurrentUserID(): String {
-        return FirebaseAuthClass().getCurrentUserID()
-    }
-
     fun doubleBackToExit() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed()
@@ -73,5 +71,9 @@ open class BaseActivity : AppCompatActivity() {
             )
         )
         snackBar.show()
+    }
+
+    fun getCurrentUserID(): String {
+        return authentication.getCurrentUserID()
     }
 }

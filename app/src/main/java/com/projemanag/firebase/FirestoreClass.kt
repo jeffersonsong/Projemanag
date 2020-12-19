@@ -12,7 +12,7 @@ import java.lang.Exception
  * A custom class where we will add the operation performed for the firestore database.
  */
 class FirestoreClass {
-
+    private val authentication = FirebaseAuthClass()
     // Create a instance of Firebase Firestore
     private val mFireStore = FirebaseFirestore.getInstance()
 
@@ -276,6 +276,6 @@ class FirestoreClass {
      * A function for getting the user id of current logged user.
      */
     fun getCurrentUserID(): String {
-        return FirebaseAuthClass().getCurrentUserID()
+        return authentication.getCurrentUserID()
     }
 }
