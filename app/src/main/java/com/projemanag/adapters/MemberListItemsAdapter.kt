@@ -13,10 +13,9 @@ import kotlinx.android.synthetic.main.item_member.view.*
 
 open class MemberListItemsAdapter(
     private val context: Context,
-    private var list: ArrayList<User>
+    private var list: ArrayList<User>,
+    private val onClick: (position: Int, user: User, action: String) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private var onClickListener: OnClickListener? = null
 
     /**
      * Inflates the item views which is designed in xml layout file
@@ -66,13 +65,10 @@ open class MemberListItemsAdapter(
             }
 
             holder.itemView.setOnClickListener {
-
-                if (onClickListener != null) {
-                    if (model.selected) {
-                        onClickListener!!.onClick(position, model, Constants.UN_SELECT)
-                    } else {
-                        onClickListener!!.onClick(position, model, Constants.SELECT)
-                    }
+                if (model.selected) {
+                    onClick(position, model, Constants.UN_SELECT)
+                } else {
+                    onClick(position, model, Constants.SELECT)
                 }
             }
         }
@@ -83,13 +79,6 @@ open class MemberListItemsAdapter(
      */
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    /**
-     * A function for OnClickListener where the Interface is the expected parameter..
-     */
-    fun setOnClickListener(onClickListener: OnClickListener) {
-        this.onClickListener = onClickListener
     }
 
     /**

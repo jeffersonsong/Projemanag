@@ -36,16 +36,12 @@ abstract class MembersListDialog(
         if (list.size > 0) {
 
             view.rvList.layoutManager = LinearLayoutManager(context)
-            adapter = MemberListItemsAdapter(context, list)
+            adapter = MemberListItemsAdapter(context, list) {
+                position, user, action ->
+                dismiss()
+                onItemSelected(user, action)
+            }
             view.rvList.adapter = adapter
-
-            adapter!!.setOnClickListener(object :
-                MemberListItemsAdapter.OnClickListener {
-                override fun onClick(position: Int, user: User, action:String) {
-                    dismiss()
-                    onItemSelected(user, action)
-                }
-            })
         }
     }
 
