@@ -25,23 +25,11 @@ import kotlin.collections.ArrayList
 
 class CardDetailsActivity : BaseActivity() {
     private val store = FirestoreClass()
-
-    // A global variable for board details
     private lateinit var mBoardDetails: Board
-
-    // A global variable for task item position
     private var mTaskListPosition: Int = -1
-
-    // A global variable for card item position
     private var mCardPosition: Int = -1
-
-    // A global variable for selected label color
     private var mSelectedColor: String = ""
-
-    // A global variable for Assigned Members List.
     private lateinit var mMembersDetailList: ArrayList<User>
-
-    // A global variable for selected due date
     private var mSelectedDueDateMilliSeconds: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +40,7 @@ class CardDetailsActivity : BaseActivity() {
 
         setupActionBar()
 
-        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val card = thisCard()
         et_name_card_details.setText(card.name)
         et_name_card_details.setSelection(et_name_card_details.text.toString().length) // The cursor after the string length
 
@@ -100,7 +88,7 @@ class CardDetailsActivity : BaseActivity() {
         // Handle presses on the action bar menu items
         when (item.itemId) {
             R.id.action_delete_card -> {
-                val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+                val card = thisCard()
                 alertDialogForDeleteCard(card.name)
                 return true
             }
@@ -112,7 +100,7 @@ class CardDetailsActivity : BaseActivity() {
      * A function to setup action bar
      */
     private fun setupActionBar() {
-        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val card = thisCard()
         setupActionBar(toolbar_card_details_activity, card.name)
     }
 
@@ -146,7 +134,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun updateCardDetails() {
         val name = et_name_card_details.text.toString()
-        val model = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val model = thisCard()
 
         // Here we have updated the card name using the data model class.
         val card = Card(
@@ -161,7 +149,7 @@ class CardDetailsActivity : BaseActivity() {
         taskList.removeAt(taskList.size - 1)
 
         // Here we have assigned the update card details to the task list using the card position.
-        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
+        thisTask().cards[mCardPosition] = card
 
         addUpdateTaskList()
     }
@@ -203,7 +191,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun deleteCard() {
         // Here we have got the cards list from the task item list using the task list position.
-        val cardsList: ArrayList<Card> = mBoardDetails.taskList[mTaskListPosition].cards
+        val cardsList: ArrayList<Card> = thisTask().cards
         // Here we will remove the item from cards list using the card position.
         cardsList.removeAt(mCardPosition)
 
@@ -252,7 +240,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun membersListDialog() {
         // Here we get the updated assigned members list
-        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val card = thisCard()
 
         flagMemberSelectedStatus(card.assignedTo)
 
@@ -302,7 +290,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun setupSelectedMembersList() {
         // Assigned members of the Card.
-        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
+        val card = thisCard()
 
         val selectedMembersList =
             SelectedMembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
@@ -328,6 +316,10 @@ class CardDetailsActivity : BaseActivity() {
             rv_selected_members_list.visibility = View.GONE
         }
     }
+
+    private fun thisCard() = thisTask().cards[mCardPosition]
+
+    private fun thisTask() = mBoardDetails.taskList[mTaskListPosition]
 
     /**
      * The function to show the DatePicker Dialog and select the due date.
