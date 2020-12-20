@@ -105,7 +105,6 @@ class TaskListActivity : BaseActivity() {
         val task = Task(taskListName, getCurrentUserID())
 
         mBoardDetails.taskList.add(0, task) // Add task to the first position of ArrayList
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1) // Remove the last position as we have added the item manually for adding the TaskList.
 
         addUpdateTaskList()
     }
@@ -116,7 +115,6 @@ class TaskListActivity : BaseActivity() {
     fun updateTaskList(position: Int, listName: String, model: Task) {
         val task = Task(listName, model.createdBy)
         mBoardDetails.taskList[position] = task
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
         addUpdateTaskList()
     }
@@ -126,8 +124,6 @@ class TaskListActivity : BaseActivity() {
      */
     fun deleteTaskList(position: Int) {
         mBoardDetails.taskList.removeAt(position)
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
-
         addUpdateTaskList()
     }
 
@@ -135,9 +131,7 @@ class TaskListActivity : BaseActivity() {
      * A function to get the result of add or updating the task list.
      */
     private fun addUpdateTaskListSuccess() {
-
         hideProgressDialog()
-
         // Here get the updated board details.
         // Show the progress dialog.
         getBoardDetails(mBoardDetails.documentId)
@@ -147,10 +141,6 @@ class TaskListActivity : BaseActivity() {
      * A function to create a card and update it in the task list.
      */
     fun addCardToTaskList(position: Int, cardName: String) {
-
-        // Remove the last item
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
-
         val card = Card(cardName, getCurrentUserID(), arrayListOf(getCurrentUserID()))
 
         val cardsList = mBoardDetails.taskList[position].cards
@@ -190,11 +180,6 @@ class TaskListActivity : BaseActivity() {
         mAssignedMembersDetailList = list
 
         hideProgressDialog()
-
-        // Here we are appending an item view for adding a list task list for the board.
-        val addTaskList = Task(resources.getString(R.string.add_list))
-        mBoardDetails.taskList.add(addTaskList)
-
         rv_task_list.apply {
             layoutManager =
                 LinearLayoutManager(
@@ -238,10 +223,6 @@ class TaskListActivity : BaseActivity() {
      * A function to update the card list in the particular task list.
      */
     fun updateCardsInTaskList(taskListPosition: Int, cards: ArrayList<Card>) {
-
-        // Remove the last item
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
-
         mBoardDetails.taskList[taskListPosition].cards = cards
 
         addUpdateTaskList()

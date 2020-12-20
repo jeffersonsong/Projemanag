@@ -75,21 +75,29 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun gotoCreateBoardScreen() {
-        val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
-        intent.putExtra(Constants.NAME, mUserName)
-        startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
-    }
+    // region Action bar
+    private fun setupActionBar() {
+        setSupportActionBar(toolbar_main_activity)
+        toolbar_main_activity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
 
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            // A double back press function is added in Base Activity.
-            doubleBackToExit()
+        toolbar_main_activity.setNavigationOnClickListener {
+            toggleDrawer()
         }
     }
 
+    /**
+     * A function for opening and closing the Navigation Drawer.
+     */
+    private fun toggleDrawer() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            drawer_layout.openDrawer(GravityCompat.START)
+        }
+    }
+    // endregion
+
+    // region navigation item selected
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.nav_my_profile -> {
@@ -116,65 +124,35 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
     }
 
+    private fun signOut() {
+        authentication.signOut()
+    }
+
     private fun gotoIntroScreen() {
         val intent = Intent(this, IntroActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
+    // endregion
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK
-            && requestCode == MY_PROFILE_REQUEST_CODE
-        ) {
-            // Get the user updated details.
-            loadUserData()
-        } else if (resultCode == Activity.RESULT_OK
-            && requestCode == CREATE_BOARD_REQUEST_CODE
-        ) {
-            // Get the latest boards list.
-            getBoardsList()
-        } else {
-            Log.e("Cancelled", "Cancelled")
-        }
-    }
-
-    /**
-     * A function to setup action bar
-     */
-    private fun setupActionBar() {
-        setSupportActionBar(toolbar_main_activity)
-        toolbar_main_activity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        toolbar_main_activity.setNavigationOnClickListener {
-            toggleDrawer()
-        }
-    }
-
-    /**
-     * A function for opening and closing the Navigation Drawer.
-     */
-    private fun toggleDrawer() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            drawer_layout.openDrawer(GravityCompat.START)
-        }
+    // region load user data
+    private fun loadUserData(readBoardsList: Boolean = false) {
+        pleaseWait()
+        store.loadUserData(
+            onSuccess = { user -> updateNavigationUserDetails(user, readBoardsList) },
+            onFailure = { hideProgressDialog() })
     }
 
     /**
      * A function to get the current user details from firebase.
      */
     private fun updateNavigationUserDetails(user: User, readBoardsList: Boolean = false) {
-
         hideProgressDialog()
 
         mUserName = user.name
 
         // The instance of the header view of the navigation view.
         val headerView = nav_view.getHeaderView(0)
-
         // The instance of the user image of the navigation view.
         val navUserImage = headerView.findViewById<ImageView>(R.id.iv_user_image)
 
@@ -196,16 +174,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    /**
-     * A function to update the user's FCM token into the database.
-     */
-    private fun updateFCMToken(token: String) {
-        val userHashMap = HashMap<String, Any>()
-        userHashMap[Constants.FCM_TOKEN] = token
-
-        // Update the data in the database.
+    private fun getBoardsList() {
         // Show the progress dialog.
-        updateUserProfileData(userHashMap)
+        pleaseWait()
+        store.getBoardsList(
+            onSuccess = { boardsList -> populateBoardsListToUI(boardsList) },
+            onFailure = { hideProgressDialog() })
     }
 
     /**
@@ -220,7 +194,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 visibility = View.VISIBLE
                 layoutManager = LinearLayoutManager(this@MainActivity)
                 setHasFixedSize(true)
-                adapter = BoardItemsAdapter(this@MainActivity, boardsList) { position: Int, model: Board ->
+                adapter = BoardItemsAdapter(
+                    this@MainActivity,
+                    boardsList
+                ) { position: Int, model: Board ->
                     gotoTaskListScreen(model)
                 }
             }
@@ -235,6 +212,59 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val intent = Intent(this@MainActivity, TaskListActivity::class.java)
         intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
         startActivity(intent)
+    }
+    // endregion
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == MY_PROFILE_REQUEST_CODE) {
+                // Get the user updated details.
+                loadUserData()
+            } else if (requestCode == CREATE_BOARD_REQUEST_CODE) {
+                // Get the latest boards list.
+                getBoardsList()
+            }
+        } else {
+            Log.e("Cancelled", "Cancelled")
+        }
+    }
+
+    private fun gotoCreateBoardScreen() {
+        val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
+        intent.putExtra(Constants.NAME, mUserName)
+        startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
+    }
+
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            // A double back press function is added in Base Activity.
+            doubleBackToExit()
+        }
+    }
+
+    // region update FCM Token
+    /**
+     * A function to update the user's FCM token into the database.
+     */
+    private fun updateFCMToken(token: String) {
+        val userHashMap = HashMap<String, Any>()
+        userHashMap[Constants.FCM_TOKEN] = token
+
+        // Update the data in the database.
+        // Show the progress dialog.
+        updateUserProfileData(userHashMap)
+    }
+
+    private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
+        pleaseWait()
+        store.updateUserProfileData(
+            userHashMap = userHashMap,
+            onSuccess = { tokenUpdateSuccess() },
+            onFailure = { hideProgressDialog() })
     }
 
     /**
@@ -252,33 +282,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Show the progress dialog.
         loadUserData(true)
     }
-
-    private fun getBoardsList() {
-        // Show the progress dialog.
-        pleaseWait()
-        store.getBoardsList(
-            onSuccess = { boardsList -> populateBoardsListToUI(boardsList) },
-            onFailure = { hideProgressDialog() })
-    }
-
-    private fun loadUserData(readBoardsList: Boolean = false) {
-        pleaseWait()
-        store.loadUserData(
-            onSuccess = { user -> updateNavigationUserDetails(user, readBoardsList) },
-            onFailure = { hideProgressDialog() })
-    }
-
-    private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
-        pleaseWait()
-        store.updateUserProfileData(
-            userHashMap = userHashMap,
-            onSuccess = { tokenUpdateSuccess() },
-            onFailure = { hideProgressDialog() })
-    }
-
-    private fun signOut() {
-        authentication.signOut()
-    }
+    // endregion
 
     /**
      * A companion object to declare the constants.

@@ -116,7 +116,7 @@ class CardDetailsActivity : BaseActivity() {
 
     // endregion
 
-    // region members list
+    // region Members list
     private fun setupMembersList() {
         setupSelectedMembersList()
 
@@ -203,7 +203,7 @@ class CardDetailsActivity : BaseActivity() {
 
     // endregion
 
-    // region due date
+    // region Due date
     /**
      * The function to show the DatePicker Dialog and select the due date.
      */
@@ -253,7 +253,7 @@ class CardDetailsActivity : BaseActivity() {
     }
     // endregion
 
-    // region update
+    // region Update
     /**
      * A function to update card details.
      */
@@ -297,7 +297,7 @@ class CardDetailsActivity : BaseActivity() {
     }
     // endregion
 
-    // region menu options
+    // region Menu options
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu to use in the action bar
         menuInflater.inflate(R.menu.menu_delete_card, menu)
@@ -317,7 +317,7 @@ class CardDetailsActivity : BaseActivity() {
     }
     // endregion
 
-    // region delete card
+    // region Delete card
     /**
      * A function to show an alert dialog for the confirmation to delete the card.
      */

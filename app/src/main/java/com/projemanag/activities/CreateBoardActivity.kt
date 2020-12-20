@@ -12,7 +12,6 @@ import com.projemanag.firebase.FirebaseStorageClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.Board
 import com.projemanag.utils.Constants
-import com.projemanag.utils.ImageChooserHelper
 import com.projemanag.utils.ImageChooserHelper.onRequestPermissionsResultForImageChooser
 import com.projemanag.utils.ImageChooserHelper.showImageChooserOrRequestPermission
 import kotlinx.android.synthetic.main.activity_create_board.*
@@ -57,13 +56,6 @@ class CreateBoardActivity : BaseActivity() {
         }
     }
 
-    /**
-     * This function will notify the user after tapping on allow or deny
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -99,9 +91,6 @@ class CreateBoardActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function to upload the Board Image to storage and getting the downloadable URL of the image.
-     */
     private fun uploadBoardImage() {
         pleaseWait()
         //getting the storage reference
@@ -111,11 +100,7 @@ class CreateBoardActivity : BaseActivity() {
             fileName,
             onSuccess = { uri ->
                 Log.e("Downloadable Image URL", uri.toString())
-
-                // assign the image url to the variable.
                 mBoardImageURL = uri.toString()
-
-                // Call a function to create the board.
                 createBoard()
             },
             onFailure = { exception ->
@@ -124,7 +109,6 @@ class CreateBoardActivity : BaseActivity() {
                     exception.message,
                     Toast.LENGTH_LONG
                 ).show()
-
                 hideProgressDialog()
             }
         )
@@ -133,21 +117,22 @@ class CreateBoardActivity : BaseActivity() {
     private fun imageFileName() = ("BOARD_IMAGE" + System.currentTimeMillis() + "."
             + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri))
 
-    /**
-     * A function to make an entry of a board in the database.
-     */
+    // region Create board
     private fun createBoard() {
-        val board = Board(
+        val board = newBoard()
+        saveBoard(board)
+    }
+
+    private fun newBoard(): Board {
+        return Board(
             et_board_name.text.toString(),
             mBoardImageURL,
             mUserName,
             arrayListOf(getCurrentUserID())
         )
-
-        createBoard(board)
     }
 
-    private fun createBoard(board: Board) {
+    private fun saveBoard(board: Board) {
         store.createBoard(
             board,
             onSuccess = {
@@ -162,12 +147,10 @@ class CreateBoardActivity : BaseActivity() {
             onFailure = { hideProgressDialog() })
     }
 
-    /**
-     * A function for notifying the board is created successfully.
-     */
     private fun boardCreatedSuccessfully() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()
     }
+    // endregion
 }

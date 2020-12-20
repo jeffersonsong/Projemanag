@@ -72,22 +72,45 @@ open class TaskListItemsAdapter(
         bind(holder.itemView, position)
 
     private fun bind(view: View, position: Int) {
-        val model = list[position]
-
-        if (position == list.size - 1) {
-            view.tv_add_task_list.visibility = View.VISIBLE
-            view.ll_task_item.visibility = View.GONE
+        if (position == list.size) {
+            bindAddList(view)
         } else {
-            view.tv_add_task_list.visibility = View.GONE
-            view.ll_task_item.visibility = View.VISIBLE
+            bindTaskList(position, view)
         }
+    }
 
-        view.tv_task_list_title.text = model.title
-
+    private fun bindAddList(view: View) {
+        view.tv_add_task_list.visibility = View.VISIBLE
         view.tv_add_task_list.setOnClickListener {
             view.tv_add_task_list.visibility = View.GONE
             view.cv_add_task_list_name.visibility = View.VISIBLE
         }
+
+        view.ll_task_item.visibility = View.GONE
+        view.tv_task_list_title.text = context.getString(R.string.add_list)
+
+        view.ib_close_list_name.setOnClickListener {
+            view.tv_add_task_list.visibility = View.VISIBLE
+            view.cv_add_task_list_name.visibility = View.GONE
+        }
+
+        view.ib_done_list_name.setOnClickListener {
+            val listName = view.et_task_list_name.text.toString()
+
+            if (listName.isNotEmpty()) {
+                // Here we check the context is an instance of the TaskListActivity.
+                createTaskList(listName)
+            } else {
+                Toast.makeText(context, "Please Enter List Name.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun bindTaskList(position: Int, view: View) {
+        val model = list[position]
+        view.tv_add_task_list.visibility = View.GONE
+        view.ll_task_item.visibility = View.VISIBLE
+        view.tv_task_list_title.text = model.title
 
         view.ib_close_list_name.setOnClickListener {
             view.tv_add_task_list.visibility = View.VISIBLE
@@ -168,7 +191,7 @@ open class TaskListItemsAdapter(
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
 
             /*Called when ItemTouchHelper wants to move the dragged item from its old position to
-             the new position.*/
+                 the new position.*/
             override fun onMove(
                 recyclerView: RecyclerView,
                 dragged: ViewHolder,
@@ -201,7 +224,7 @@ open class TaskListItemsAdapter(
             }
 
             /*Called by the ItemTouchHelper when the user interaction with an element is over and it
-             also completed its animation.*/
+                 also completed its animation.*/
             override fun clearView(recyclerView: RecyclerView, viewHolder: ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
 
@@ -216,14 +239,14 @@ open class TaskListItemsAdapter(
         })
 
         /*Attaches the ItemTouchHelper to the provided RecyclerView. If TouchHelper is already
-        attached to a RecyclerView, it will first detach from the previous one.*/
+            attached to a RecyclerView, it will first detach from the previous one.*/
         helper.attachToRecyclerView(view.rv_card_list)
     }
 
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount() = list.size
+    override fun getItemCount() = list.size + 1
 
     /**
      * A function to get density pixel from pixel
