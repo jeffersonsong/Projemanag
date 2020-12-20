@@ -256,28 +256,26 @@ class CardDetailsActivity : BaseActivity() {
 
         flagMemberSelectedStatus(card.assignedTo)
 
-        val listDialog = object : MembersListDialog(
+        val listDialog = MembersListDialog(
             this@CardDetailsActivity,
             mMembersDetailList,
             resources.getString(R.string.str_select_member)
-        ) {
-            override fun onItemSelected(user: User, action: String) {
-                if (action == Constants.SELECT) {
-                    if (!card.assignedTo.contains(user.id)) {
-                        card.assignedTo.add(user.id)
-                    }
-
-                } else {
-                    card.assignedTo.remove(user.id)
-                    for (i in mMembersDetailList.indices) {
-                        if (mMembersDetailList[i].id == user.id) {
-                            mMembersDetailList[i].selected = false
-                        }
-                    }
+        ) { user, action ->
+            if (action == Constants.SELECT) {
+                if (!card.assignedTo.contains(user.id)) {
+                    card.assignedTo.add(user.id)
                 }
 
-                setupSelectedMembersList()
+            } else {
+                card.assignedTo.remove(user.id)
+                for (i in mMembersDetailList.indices) {
+                    if (mMembersDetailList[i].id == user.id) {
+                        mMembersDetailList[i].selected = false
+                    }
+                }
             }
+
+            setupSelectedMembersList()
         }
         listDialog.show()
     }

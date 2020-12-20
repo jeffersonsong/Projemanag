@@ -11,10 +11,11 @@ import com.projemanag.adapters.MemberListItemsAdapter
 import com.projemanag.model.User
 import kotlinx.android.synthetic.main.dialog_list.view.*
 
-abstract class MembersListDialog(
+class MembersListDialog(
     context: Context,
     private var list: ArrayList<User>,
-    private val title: String = ""
+    private val title: String = "",
+    private val onItemSelected: (user: User, action: String)->Unit
 ) : Dialog(context) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +43,4 @@ abstract class MembersListDialog(
             }
         }
     }
-
-    protected abstract fun onItemSelected(user: User, action: String)
 }
