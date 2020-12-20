@@ -11,6 +11,7 @@ import com.projemanag.R
 import com.projemanag.activities.TaskListActivity
 import com.projemanag.model.Card
 import com.projemanag.model.SelectedMembers
+import com.projemanag.utils.SelectedMembersHelper
 import kotlinx.android.synthetic.main.item_card.view.*
 
 open class CardListItemsAdapter(
@@ -61,21 +62,8 @@ open class CardListItemsAdapter(
 
         if ((context as TaskListActivity).mAssignedMembersDetailList.isNotEmpty()) {
             // A instance of selected members list.
-            val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
-
-            // Here we got the detail list of members and add it to the selected members list as required.
-            for (i in context.mAssignedMembersDetailList.indices) {
-                for (j in model.assignedTo) {
-                    if (context.mAssignedMembersDetailList[i].id == j) {
-                        val selectedMember = SelectedMembers(
-                            context.mAssignedMembersDetailList[i].id,
-                            context.mAssignedMembersDetailList[i].image
-                        )
-
-                        selectedMembersList.add(selectedMember)
-                    }
-                }
-            }
+            val selectedMembersList: ArrayList<SelectedMembers> =
+                SelectedMembersHelper.selectedMembersList(context.mAssignedMembersDetailList, model.assignedTo)
 
             if (selectedMembersList.isNotEmpty()) {
                 if (selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy) {

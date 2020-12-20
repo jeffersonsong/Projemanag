@@ -17,6 +17,7 @@ import com.projemanag.dialogs.MembersListDialog
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.*
 import com.projemanag.utils.Constants
+import com.projemanag.utils.SelectedMembersHelper
 import kotlinx.android.synthetic.main.activity_card_details.*
 import java.text.DateFormat
 import java.util.*
@@ -256,8 +257,36 @@ class CardDetailsActivity : BaseActivity() {
     private fun membersListDialog() {
         // Here we get the updated assigned members list
         val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
-        val cardAssignedMembersList = card.assignedTo
 
+        flagMemberSelectedStatus(card.assignedTo)
+
+        val listDialog = object : MembersListDialog(
+            this@CardDetailsActivity,
+            mMembersDetailList,
+            resources.getString(R.string.str_select_member)
+        ) {
+            override fun onItemSelected(user: User, action: String) {
+                if (action == Constants.SELECT) {
+                    if (!card.assignedTo.contains(user.id)) {
+                        card.assignedTo.add(user.id)
+                    }
+
+                } else {
+                    card.assignedTo.remove(user.id)
+                    for (i in mMembersDetailList.indices) {
+                        if (mMembersDetailList[i].id == user.id) {
+                            mMembersDetailList[i].selected = false
+                        }
+                    }
+                }
+
+                setupSelectedMembersList()
+            }
+        }
+        listDialog.show()
+    }
+
+    private fun flagMemberSelectedStatus(cardAssignedMembersList: ArrayList<String>) {
         if (cardAssignedMembersList.isNotEmpty()) {
             // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
             for (i in mMembersDetailList.indices) {
@@ -272,32 +301,6 @@ class CardDetailsActivity : BaseActivity() {
                 mMembersDetailList[i].selected = false
             }
         }
-
-        val listDialog = object : MembersListDialog(
-            this@CardDetailsActivity,
-            mMembersDetailList,
-            resources.getString(R.string.str_select_member)
-        ) {
-            override fun onItemSelected(user: User, action: String) {
-
-                if (action == Constants.SELECT) {
-                    if (!card.assignedTo.contains(user.id)) {
-                        card.assignedTo.add(user.id)
-                    }
-                } else {
-                    card.assignedTo.remove(user.id)
-
-                    for (i in mMembersDetailList.indices) {
-                        if (mMembersDetailList[i].id == user.id) {
-                            mMembersDetailList[i].selected = false
-                        }
-                    }
-                }
-
-                setupSelectedMembersList()
-            }
-        }
-        listDialog.show()
     }
 
     /**
@@ -305,39 +308,27 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun setupSelectedMembersList() {
         // Assigned members of the Card.
-        val cardAssignedMembersList =
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
+        val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
 
-        // A instance of selected members list.
-        val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
-
-        // Here we got the detail list of members and add it to the selected members list as required.
-        for (i in mMembersDetailList.indices) {
-            for (j in cardAssignedMembersList) {
-                if (mMembersDetailList[i].id == j) {
-                    val selectedMember = SelectedMembers(
-                        mMembersDetailList[i].id,
-                        mMembersDetailList[i].image
-                    )
-
-                    selectedMembersList.add(selectedMember)
-                }
-            }
-        }
+        val selectedMembersList: ArrayList<SelectedMembers> =
+            SelectedMembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
 
         if (selectedMembersList.isNotEmpty()) {
             // This is for the last item to show.
             selectedMembersList.add(SelectedMembers("", ""))
-
             tv_select_members.visibility = View.GONE
-            rv_selected_members_list.visibility = View.VISIBLE
 
-            rv_selected_members_list.layoutManager = GridLayoutManager(this@CardDetailsActivity, 6)
-            val adapter =
-                CardMemberListItemsAdapter(this@CardDetailsActivity, selectedMembersList, true) {
+            rv_selected_members_list.apply {
+                visibility = View.VISIBLE
+                layoutManager = GridLayoutManager(this@CardDetailsActivity, 6)
+                adapter = CardMemberListItemsAdapter(
+                    this@CardDetailsActivity,
+                    selectedMembersList,
+                    true
+                ) {
                     membersListDialog()
                 }
-            rv_selected_members_list.adapter = adapter
+            }
         } else {
             tv_select_members.visibility = View.VISIBLE
             rv_selected_members_list.visibility = View.GONE
