@@ -59,14 +59,17 @@ class TaskListActivity : BaseActivity() {
         // Handle presses on the action bar menu items
         when (item.itemId) {
             R.id.action_members -> {
-
-                val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
-                intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-                startActivityForResult(intent, MEMBERS_REQUEST_CODE)
+                gotoMembersScreen()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun gotoMembersScreen() {
+        val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        startActivityForResult(intent, MEMBERS_REQUEST_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -179,6 +182,10 @@ class TaskListActivity : BaseActivity() {
      * A function for viewing and updating card details.
      */
     fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+        gotoCardDetailsScreen(taskListPosition, cardPosition)
+    }
+
+    private fun gotoCardDetailsScreen(taskListPosition: Int, cardPosition: Int) {
         val intent = Intent(this@TaskListActivity, CardDetailsActivity::class.java)
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)

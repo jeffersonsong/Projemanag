@@ -104,7 +104,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param title title.
+     * @param title title.taskListPosition, cardPosition
      * @param message FCM message body received.
      */
     private fun sendNotification(title: String, message: String) {

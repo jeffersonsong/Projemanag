@@ -30,11 +30,19 @@ class IntroActivity : AppCompatActivity() {
         tv_app_name_intro.typeface = typeface
 
         btn_sign_in_intro.setOnClickListener {
-            startActivity(Intent(this@IntroActivity, SignInActivity::class.java))
+            gotoSignInScreen()
         }
 
         btn_sign_up_intro.setOnClickListener {
-            startActivity(Intent(this@IntroActivity, SignUpActivity::class.java))
+            gotoSignUpScreen()
         }
+    }
+
+    private fun gotoSignInScreen() {
+        startActivity(Intent(this@IntroActivity, SignInActivity::class.java))
+    }
+
+    private fun gotoSignUpScreen() {
+        startActivity(Intent(this@IntroActivity, SignUpActivity::class.java))
     }
 }

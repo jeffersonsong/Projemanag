@@ -71,10 +71,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         fab_create_board.setOnClickListener {
-            val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
-            intent.putExtra(Constants.NAME, mUserName)
-            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
+            gotoCreateBoardScreen()
         }
+    }
+
+    private fun gotoCreateBoardScreen() {
+        val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
+        intent.putExtra(Constants.NAME, mUserName)
+        startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
     }
 
     override fun onBackPressed() {
@@ -89,8 +93,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.nav_my_profile -> {
-                val intent = Intent(this@MainActivity, MyProfileActivity::class.java)
-                startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
+                gotoMyProfileScreen()
             }
 
             R.id.nav_sign_out -> {
@@ -100,14 +103,23 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 mSharedPreferences.edit().clear().apply()
 
                 // Send the user to the intro screen of the application.
-                val intent = Intent(this, IntroActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
+                gotoIntroScreen()
                 finish()
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun gotoMyProfileScreen() {
+        val intent = Intent(this@MainActivity, MyProfileActivity::class.java)
+        startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
+    }
+
+    private fun gotoIntroScreen() {
+        val intent = Intent(this, IntroActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -212,9 +224,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             // Create an instance of BoardItemsAdapter and pass the boardList to it.
             val adapter =
                 BoardItemsAdapter(this@MainActivity, boardsList) { position: Int, model: Board ->
-                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
-                    startActivity(intent)
+                    gotoTaskListScreen(model)
                 }
             rv_boards_list.adapter = adapter // Attach the adapter to the recyclerView.
 
@@ -222,6 +232,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             rv_boards_list.visibility = View.GONE
             tv_no_boards_available.visibility = View.VISIBLE
         }
+    }
+
+    private fun gotoTaskListScreen(model: Board) {
+        val intent = Intent(this@MainActivity, TaskListActivity::class.java)
+        intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+        startActivity(intent)
     }
 
     /**

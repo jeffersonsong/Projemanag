@@ -85,8 +85,12 @@ class SignInActivity : BaseActivity() {
      */
     private fun signInSuccess(user: User) {
         hideProgressDialog()
-        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+        gotoMainScreen()
         this.finish()
+    }
+
+    private fun gotoMainScreen() {
+        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
     }
 
     private fun signInWithEmailAndPassword(email: String, password: String) {
