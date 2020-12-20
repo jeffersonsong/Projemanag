@@ -107,8 +107,8 @@ class CreateBoardActivity : BaseActivity() {
         //getting the storage reference
         val fileName = imageFileName()
         imageStorage.uploadImage(
-            mSelectedImageFileUri = mSelectedImageFileUri!!,
-            fileName = fileName,
+            mSelectedImageFileUri!!,
+            fileName,
             onSuccess = { uri ->
                 Log.e("Downloadable Image URL", uri.toString())
 
@@ -149,7 +149,7 @@ class CreateBoardActivity : BaseActivity() {
 
     private fun createBoard(board: Board) {
         store.createBoard(
-            board = board,
+            board,
             onSuccess = {
                 Toast.makeText(
                     this@CreateBoardActivity,

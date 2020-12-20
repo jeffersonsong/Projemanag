@@ -1,6 +1,7 @@
 package com.projemanag.firebase
 
 import android.util.Log
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.projemanag.model.Board
@@ -48,7 +49,7 @@ class FirestoreClass {
                 Log.e(javaClass.simpleName, document.toString())
 
                 // Here we have received the document snapshot which is converted into the User Data model object.
-                val loggedInUser = document.toObject(User::class.java)!!
+                val loggedInUser = parseUser(document)
 
                 // Here call a function of base activity for transferring the result to it.
                 onSuccess(loggedInUser)
@@ -112,15 +113,7 @@ class FirestoreClass {
                 // Here we get the list of boards in the form of documents.
                 Log.e(javaClass.simpleName, document.documents.toString())
                 // Here we have created a new instance for Boards ArrayList.
-                val boardsList = ArrayList<Board>()
-
-                // A for loop as per the list of documents to convert them into Boards ArrayList.
-                for (i in document.documents) {
-                    val board = i.toObject(Board::class.java)!!
-                    board.documentId = i.id
-
-                    boardsList.add(board)
-                }
+                val boardsList = parseBoardsList(document.documents)
 
                 // Here pass the result to the base activity.
                 onSuccess(boardsList)
@@ -129,6 +122,22 @@ class FirestoreClass {
                 onFailure(e)
                 Log.e(javaClass.simpleName, "Error while creating a board.", e)
             }
+    }
+
+    private fun parseBoardsList(documents: List<DocumentSnapshot> ): ArrayList<Board> {
+        val boardsList = ArrayList<Board>()
+
+        // A for loop as per the list of documents to convert them into Boards ArrayList.
+        for (i in documents) {
+            boardsList.add(parseBoard(i))
+        }
+        return boardsList
+    }
+
+    private fun parseBoard(document: DocumentSnapshot): Board {
+        val board = document.toObject(Board::class.java)!!
+        board.documentId = document.id
+        return board
     }
 
     /**
@@ -144,8 +153,7 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 Log.e(javaClass.simpleName, document.toString())
 
-                val board = document.toObject(Board::class.java)!!
-                board.documentId = document.id
+                val board = parseBoard(document)
 
                 // Send the result of board to the base activity.
                 onSuccess(board)
@@ -192,15 +200,7 @@ class FirestoreClass {
             .get()
             .addOnSuccessListener { document ->
                 Log.e(javaClass.simpleName, document.documents.toString())
-
-                val usersList: ArrayList<User> = ArrayList()
-
-                for (i in document.documents) {
-                    // Convert all the document snapshot to the object using the data model class.
-                    val user = i.toObject(User::class.java)!!
-                    usersList.add(user)
-                }
-
+                val usersList= parseUsersList(document.documents)
                 onSuccess(usersList)
             }
             .addOnFailureListener { e ->
@@ -227,7 +227,7 @@ class FirestoreClass {
                 Log.e(javaClass.simpleName, document.documents.toString())
 
                 if (document.documents.isNotEmpty()) {
-                    val user = document.documents[0].toObject(User::class.java)!!
+                    val user = parseUser(document.documents[0])
                     // Here call a function of base activity for transferring the result to it.
                     onUserFound(user)
                 } else {
@@ -240,6 +240,18 @@ class FirestoreClass {
                 Log.e(javaClass.simpleName, "Error while getting user details", e)
             }
     }
+
+    private fun parseUsersList(documents: List<DocumentSnapshot>): ArrayList<User> {
+        val usersList: ArrayList<User> = ArrayList()
+
+        for (i in documents) {
+            // Convert all the document snapshot to the object using the data model class.
+            usersList.add(parseUser(i))
+        }
+        return usersList
+    }
+
+    private fun parseUser(document: DocumentSnapshot) = document.toObject(User::class.java)!!
 
     /**
      * A function to assign a updated members list to board.
