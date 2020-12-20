@@ -242,7 +242,7 @@ class CardDetailsActivity : BaseActivity() {
         // Here we get the updated assigned members list
         val card = thisCard()
 
-        flagMemberSelectedStatus(card.assignedTo)
+        flagMemberSelectedStatus(mMembersDetailList, card.assignedTo)
 
         val listDialog = MembersListDialog(
             this@CardDetailsActivity,
@@ -256,11 +256,7 @@ class CardDetailsActivity : BaseActivity() {
 
             } else {
                 card.assignedTo.remove(user.id)
-                for (i in mMembersDetailList.indices) {
-                    if (mMembersDetailList[i].id == user.id) {
-                        mMembersDetailList[i].selected = false
-                    }
-                }
+                unSelect(mMembersDetailList, user)
             }
 
             setupSelectedMembersList()
@@ -268,20 +264,27 @@ class CardDetailsActivity : BaseActivity() {
         listDialog.show()
     }
 
-    private fun flagMemberSelectedStatus(cardAssignedMembersList: ArrayList<String>) {
+    private fun unSelect(mMembersDetailList: ArrayList<User>, user: User) {
+        mMembersDetailList.filter { member ->
+            member.id == user.id
+        }.forEach { member ->
+            member.selected = false
+        }
+    }
+
+    private fun flagMemberSelectedStatus(
+        mMembersDetailList: ArrayList<User>,
+        cardAssignedMembersList: ArrayList<String>
+    ) {
         if (cardAssignedMembersList.isNotEmpty()) {
             // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
-            for (i in mMembersDetailList.indices) {
-                for (j in cardAssignedMembersList) {
-                    if (mMembersDetailList[i].id == j) {
-                        mMembersDetailList[i].selected = true
-                    }
-                }
+            mMembersDetailList.filter { member ->
+                member.id.isNotEmpty() && cardAssignedMembersList.contains(member.id)
+            }.forEach { member ->
+                member.selected = true
             }
         } else {
-            for (i in mMembersDetailList.indices) {
-                mMembersDetailList[i].selected = false
-            }
+            mMembersDetailList.forEach { member -> member.selected = false }
         }
     }
 
