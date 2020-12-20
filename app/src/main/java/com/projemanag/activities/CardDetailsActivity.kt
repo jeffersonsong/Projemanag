@@ -310,7 +310,7 @@ class CardDetailsActivity : BaseActivity() {
         // Assigned members of the Card.
         val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
 
-        val selectedMembersList: ArrayList<SelectedMembers> =
+        val selectedMembersList  =
             SelectedMembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
 
         if (selectedMembersList.isNotEmpty()) {

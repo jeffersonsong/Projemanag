@@ -9,22 +9,13 @@ object SelectedMembersHelper {
         membersList: ArrayList<User>,
         assignedMembersList: ArrayList<String>
     ): ArrayList<SelectedMembers> {
-        // A instance of selected members list.
-        val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+        val assignedMembersSet = HashSet(assignedMembersList)
 
-        // Here we got the detail list of members and add it to the selected members list as required.
-        for (i in membersList.indices) {
-            for (j in assignedMembersList) {
-                if (membersList[i].id == j) {
-                    val selectedMember = SelectedMembers(
-                        membersList[i].id,
-                        membersList[i].image
-                    )
-
-                    selectedMembersList.add(selectedMember)
-                }
-            }
+        val result = membersList.filter { user ->
+            user.id.isNotEmpty() && assignedMembersSet.contains(user.id)
         }
-        return selectedMembersList
+            .map { user -> SelectedMembers(user.id, user.image) }
+
+        return ArrayList(result)
     }
 }
