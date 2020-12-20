@@ -204,7 +204,22 @@ class TaskListActivity : BaseActivity() {
         rv_task_list.setHasFixedSize(true)
 
         // Create an instance of TaskListItemsAdapter and pass the task list to it.
-        val adapter = TaskListItemsAdapter(this@TaskListActivity, mBoardDetails.taskList)
+        val adapter = TaskListItemsAdapter(
+            this@TaskListActivity,
+            mBoardDetails.taskList,
+            createTaskList = { taskListName -> createTaskList(taskListName) },
+            updateTaskList = { position, listName, task ->
+                updateTaskList(
+                    position,
+                    listName,
+                    task
+                )
+            },
+            deleteTaskList = { position -> deleteTaskList(position) },
+            addCardToTaskList = { position, cardName -> addCardToTaskList(position, cardName) },
+            updateCardsInTaskList = {taskListPosition, cards -> updateCardsInTaskList(taskListPosition, cards) },
+            cardDetails = {taskListPosition, cardPosition ->  cardDetails(taskListPosition, cardPosition)}
+        )
         rv_task_list.adapter = adapter // Attach the adapter to the recyclerView.
     }
 

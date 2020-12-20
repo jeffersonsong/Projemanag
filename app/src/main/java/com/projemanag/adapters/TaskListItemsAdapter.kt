@@ -1,5 +1,6 @@
 package com.projemanag.adapters
 
+import android.content.Context
 import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +14,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.projemanag.R
-import com.projemanag.activities.TaskListActivity
+import com.projemanag.model.Card
 import com.projemanag.model.Task
 import kotlinx.android.synthetic.main.item_task.view.*
 import java.util.*
 
 open class TaskListItemsAdapter(
-    private val context: TaskListActivity,
-    private var list: ArrayList<Task>
+    private val context: Context,
+    private var list: ArrayList<Task>,
+    private val createTaskList: (taskListName: String) -> Unit,
+    private val updateTaskList: (position: Int, listName: String, task: Task) -> Unit,
+    private val deleteTaskList: (position: Int) -> Unit,
+    private val addCardToTaskList: (position: Int, cardName: String) -> Unit,
+    private val updateCardsInTaskList: (taskListPosition: Int, cards: ArrayList<Card>) -> Unit,
+    private val cardDetails: (taskListPosition: Int, cardPosition: Int) -> Unit
 ) : RecyclerView.Adapter<TaskListItemsAdapter.MyViewHolder>() {
 
     // A global variable for position dragged FROM.
@@ -90,7 +97,7 @@ open class TaskListItemsAdapter(
 
             if (listName.isNotEmpty()) {
                 // Here we check the context is an instance of the TaskListActivity.
-                context.createTaskList(listName)
+                createTaskList(listName)
             } else {
                 Toast.makeText(context, "Please Enter List Name.", Toast.LENGTH_SHORT).show()
             }
@@ -111,7 +118,7 @@ open class TaskListItemsAdapter(
             val listName = view.et_edit_task_list_name.text.toString()
 
             if (listName.isNotEmpty()) {
-                context.updateTaskList(position, listName, model)
+                updateTaskList(position, listName, model)
             } else {
                 Toast.makeText(context, "Please Enter List Name.", Toast.LENGTH_SHORT).show()
             }
@@ -134,7 +141,7 @@ open class TaskListItemsAdapter(
                 val cardName = view.et_card_name.text.toString()
 
                 if (cardName.isNotEmpty()) {
-                    context.addCardToTaskList(position, cardName)
+                    addCardToTaskList(position, cardName)
                 } else {
                     Toast.makeText(context, "Please Enter Card Detail.", Toast.LENGTH_SHORT)
                         .show()
@@ -146,7 +153,7 @@ open class TaskListItemsAdapter(
         view.rv_card_list.setHasFixedSize(true)
 
         val adapter = CardListItemsAdapter(context, model.cards) { cardPosition ->
-            context.cardDetails(position, cardPosition)
+            cardDetails(position, cardPosition)
         }
         view.rv_card_list.adapter = adapter
 
@@ -197,10 +204,7 @@ open class TaskListItemsAdapter(
                 super.clearView(recyclerView, viewHolder)
 
                 if (mPositionDraggedFrom != -1 && mPositionDraggedTo != -1 && mPositionDraggedFrom != mPositionDraggedTo) {
-                    context.updateCardsInTaskList(
-                        position,
-                        list[position].cards
-                    )
+                    updateCardsInTaskList(position, list[position].cards)
                 }
 
                 // Reset the global variables
@@ -246,7 +250,7 @@ open class TaskListItemsAdapter(
         //performing positive action
         builder.setPositiveButton("Yes") { dialogInterface, which ->
             dialogInterface.dismiss() // Dialog will be dismissed
-            context.deleteTaskList(position)
+            deleteTaskList(position)
         }
 
         //performing negative action
