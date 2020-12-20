@@ -238,16 +238,12 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun labelColorsListDialog() {
         val colorsList: ArrayList<String> = colorsList()
-        val listDialog = object : LabelColorListDialog(
+        val listDialog = LabelColorListDialog(
             this@CardDetailsActivity,
             colorsList,
             resources.getString(R.string.str_select_label_color),
             mSelectedColor
-        ) {
-            override fun onItemSelected(color: String) {
-                setColor(color)
-            }
-        }
+        ) { color -> setColor(color) }
         listDialog.show()
     }
 
@@ -310,7 +306,7 @@ class CardDetailsActivity : BaseActivity() {
         // Assigned members of the Card.
         val card = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition]
 
-        val selectedMembersList  =
+        val selectedMembersList =
             SelectedMembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
 
         if (selectedMembersList.isNotEmpty()) {

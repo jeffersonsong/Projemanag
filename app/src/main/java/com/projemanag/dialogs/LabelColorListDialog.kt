@@ -10,11 +10,12 @@ import com.projemanag.R
 import com.projemanag.adapters.LabelColorListItemsAdapter
 import kotlinx.android.synthetic.main.dialog_list.view.*
 
-abstract class LabelColorListDialog(
+class LabelColorListDialog(
     context: Context,
     private var list: ArrayList<String>,
     private val title: String = "",
-    private val mSelectedColor: String = ""
+    private val mSelectedColor: String = "",
+    private val onItemSelected: (color: String)->Unit
 ) : Dialog(context) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +40,4 @@ abstract class LabelColorListDialog(
             }
         }
     }
-
-    protected abstract fun onItemSelected(color: String)
 }
