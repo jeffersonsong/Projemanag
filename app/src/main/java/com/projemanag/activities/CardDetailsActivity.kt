@@ -133,8 +133,6 @@ class CardDetailsActivity : BaseActivity() {
         val selectedMembersList = selectedMembersList(mMembersDetailList, thisCard().assignedTo)
 
         if (selectedMembersList.isNotEmpty()) {
-            // This is for the last item to show.
-            // selectedMembersList.add(SelectedMembers("", ""))
             tv_select_members.visibility = View.GONE
 
             rv_selected_members_list.apply {

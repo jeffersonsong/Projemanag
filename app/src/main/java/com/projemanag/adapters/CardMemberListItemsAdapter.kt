@@ -43,14 +43,13 @@ open class CardMemberListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) =
+        bind(holder.itemView, position)
 
-    private fun bind(view:View, position: Int) {
-        if (position == list.size) {
-            if (assignMembers) {
-                view.iv_add_member.visibility = View.VISIBLE
-                view.iv_selected_member_image.visibility = View.GONE
-            }
+    private fun bind(view: View, position: Int) {
+        if (position == list.size && assignMembers) {
+            view.iv_add_member.visibility = View.VISIBLE
+            view.iv_selected_member_image.visibility = View.GONE
 
         } else {
             val model = list[position]
