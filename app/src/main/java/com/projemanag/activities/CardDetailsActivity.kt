@@ -17,7 +17,7 @@ import com.projemanag.dialogs.MembersListDialog
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.*
 import com.projemanag.utils.Constants
-import com.projemanag.utils.SelectedMembersHelper
+import com.projemanag.utils.MembersHelper
 import kotlinx.android.synthetic.main.activity_card_details.*
 import java.text.DateFormat
 import java.util.*
@@ -242,7 +242,7 @@ class CardDetailsActivity : BaseActivity() {
         // Here we get the updated assigned members list
         val card = thisCard()
 
-        flagMemberSelectedStatus(mMembersDetailList, card.assignedTo)
+        MembersHelper.flagMemberSelectedStatus(mMembersDetailList, card.assignedTo)
 
         val listDialog = MembersListDialog(
             this@CardDetailsActivity,
@@ -256,36 +256,12 @@ class CardDetailsActivity : BaseActivity() {
 
             } else {
                 card.assignedTo.remove(user.id)
-                unSelect(mMembersDetailList, user)
+                MembersHelper.deselect(mMembersDetailList, user)
             }
 
             setupSelectedMembersList()
         }
         listDialog.show()
-    }
-
-    private fun unSelect(mMembersDetailList: ArrayList<User>, user: User) {
-        mMembersDetailList.filter { member ->
-            member.id == user.id
-        }.forEach { member ->
-            member.selected = false
-        }
-    }
-
-    private fun flagMemberSelectedStatus(
-        mMembersDetailList: ArrayList<User>,
-        cardAssignedMembersList: ArrayList<String>
-    ) {
-        if (cardAssignedMembersList.isNotEmpty()) {
-            // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
-            mMembersDetailList.filter { member ->
-                member.id.isNotEmpty() && cardAssignedMembersList.contains(member.id)
-            }.forEach { member ->
-                member.selected = true
-            }
-        } else {
-            mMembersDetailList.forEach { member -> member.selected = false }
-        }
     }
 
     /**
@@ -296,7 +272,7 @@ class CardDetailsActivity : BaseActivity() {
         val card = thisCard()
 
         val selectedMembersList =
-            SelectedMembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
+            MembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
 
         if (selectedMembersList.isNotEmpty()) {
             // This is for the last item to show.

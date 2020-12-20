@@ -11,7 +11,7 @@ import com.projemanag.R
 import com.projemanag.model.Card
 import com.projemanag.model.SelectedMembers
 import com.projemanag.model.User
-import com.projemanag.utils.SelectedMembersHelper
+import com.projemanag.utils.MembersHelper
 import kotlinx.android.synthetic.main.item_card.view.*
 
 open class CardListItemsAdapter(
@@ -65,7 +65,7 @@ open class CardListItemsAdapter(
         if (boardMembersList.isNotEmpty()) {
             // A instance of selected members list.
             val selectedMembersList: ArrayList<SelectedMembers> =
-                SelectedMembersHelper.selectedMembersList(
+                MembersHelper.selectedMembersList(
                     boardMembersList,
                     model.assignedTo
                 )
