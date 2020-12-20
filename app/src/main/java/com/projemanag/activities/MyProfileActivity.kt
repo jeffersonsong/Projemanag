@@ -1,21 +1,18 @@
 package com.projemanag.activities
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.projemanag.R
 import com.projemanag.firebase.FirebaseStorageClass
 import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.User
 import com.projemanag.utils.Constants
+import com.projemanag.utils.ImageChooserHelper
 import kotlinx.android.synthetic.main.activity_my_profile.*
 import java.io.IOException
 
@@ -41,21 +38,7 @@ class MyProfileActivity : BaseActivity() {
         loadUserData()
 
         iv_profile_user_image.setOnClickListener {
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                Constants.showImageChooser(this@MyProfileActivity)
-            } else {
-                /*Requests permissions to be granted to this application. These permissions
-                 must be requested in your manifest, they should not be granted to your app,
-                 and they should have protection level*/
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    Constants.READ_STORAGE_PERMISSION_CODE
-                )
-            }
+            ImageChooserHelper.showImageChooserOrRequestPermission(this@MyProfileActivity)
         }
 
         btn_update.setOnClickListener {
@@ -106,19 +89,11 @@ class MyProfileActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == Constants.READ_STORAGE_PERMISSION_CODE) {
-            //If permission is granted
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Constants.showImageChooser(this@MyProfileActivity)
-            } else {
-                //Displaying another toast if permission is not granted
-                Toast.makeText(
-                    this,
-                    "Oops, you just denied the permission for storage. You can also allow it from settings.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+        ImageChooserHelper.onRequestPermissionsResultForImageChooser(
+            this@MyProfileActivity,
+            requestCode,
+            grantResults
+        )
     }
 
     /**
