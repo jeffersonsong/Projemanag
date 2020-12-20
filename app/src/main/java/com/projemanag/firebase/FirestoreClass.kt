@@ -112,11 +112,10 @@ class FirestoreClass {
                 // Here we get the list of boards in the form of documents.
                 Log.e(javaClass.simpleName, document.documents.toString())
                 // Here we have created a new instance for Boards ArrayList.
-                val boardsList: ArrayList<Board> = ArrayList()
+                val boardsList = ArrayList<Board>()
 
                 // A for loop as per the list of documents to convert them into Boards ArrayList.
                 for (i in document.documents) {
-
                     val board = i.toObject(Board::class.java)!!
                     board.documentId = i.id
 

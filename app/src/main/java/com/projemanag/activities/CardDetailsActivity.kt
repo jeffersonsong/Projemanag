@@ -18,6 +18,9 @@ import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.*
 import com.projemanag.utils.Constants
 import com.projemanag.utils.MembersHelper
+import com.projemanag.utils.MembersHelper.deselect
+import com.projemanag.utils.MembersHelper.flagMemberSelectedStatus
+import com.projemanag.utils.MembersHelper.selectedMembersList
 import kotlinx.android.synthetic.main.activity_card_details.*
 import java.text.DateFormat
 import java.util.*
@@ -38,70 +41,13 @@ class CardDetailsActivity : BaseActivity() {
 
         getIntentData()
 
-        setupActionBar()
-
-        val card = thisCard()
-        et_name_card_details.setText(card.name)
-        et_name_card_details.setSelection(et_name_card_details.text.toString().length) // The cursor after the string length
-
-        if (card.labelColor.isNotEmpty()) {
-            setColor(card.labelColor)
-        }
-
-        tv_select_label_color.setOnClickListener {
-            labelColorsListDialog()
-        }
-
-        setupSelectedMembersList()
-
-        tv_select_members.setOnClickListener {
-            membersListDialog()
-        }
-
-        mSelectedDueDateMilliSeconds = card.dueDate
-        if (mSelectedDueDateMilliSeconds > 0) {
-            val selectedDate = dateFormat().format(Date(mSelectedDueDateMilliSeconds))
-            tv_select_due_date.text = selectedDate
-        }
-
-        tv_select_due_date.setOnClickListener {
-            showDataPicker()
-        }
-
-        btn_update_card_details.setOnClickListener {
-            if (et_name_card_details.text.toString().isNotEmpty()) {
-                updateCardDetails()
-            } else {
-                Toast.makeText(this@CardDetailsActivity, "Enter card name.", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // Inflate the menu to use in the action bar
-        menuInflater.inflate(R.menu.menu_delete_card, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle presses on the action bar menu items
-        when (item.itemId) {
-            R.id.action_delete_card -> {
-                val card = thisCard()
-                alertDialogForDeleteCard(card.name)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * A function to setup action bar
-     */
-    private fun setupActionBar() {
         val card = thisCard()
         setupActionBar(toolbar_card_details_activity, card.name)
+        setupName(card.name)
+        setupColor(card.labelColor)
+        setupMembersList()
+        setupDueDate(card)
+        setupUpdateButton()
     }
 
     // A function to get all the data that is sent through intent.
@@ -120,15 +66,196 @@ class CardDetailsActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function to get the result of add or updating the task list.
-     */
-    private fun addUpdateTaskListSuccess() {
-        hideProgressDialog()
-        setResult(Activity.RESULT_OK)
-        finish()
+    private fun setupName(name: String) {
+        et_name_card_details.setText(name)
+        et_name_card_details.setSelection(et_name_card_details.text.toString().length)
     }
 
+    // region Color
+    private fun setupColor(color: String) {
+        if (color.isNotEmpty()) {
+            setColor(color)
+        }
+
+        tv_select_label_color.setOnClickListener {
+            labelColorsListDialog()
+        }
+    }
+
+    /**
+     * A function to remove the text and set the label color to the TextView.
+     */
+    private fun setColor(color: String) {
+        mSelectedColor = color
+        tv_select_label_color.text = ""
+        tv_select_label_color.setBackgroundColor(Color.parseColor(color))
+    }
+
+    /**
+     * A function to launch the label color list dialog.
+     */
+    private fun labelColorsListDialog() {
+        val colorsList: ArrayList<String> = colorsList()
+        val listDialog = LabelColorListDialog(
+            this@CardDetailsActivity,
+            colorsList,
+            resources.getString(R.string.str_select_label_color),
+            mSelectedColor
+        ) { color -> setColor(color) }
+        listDialog.show()
+    }
+
+    /**
+     * A function to add some static label colors in the list.
+     */
+    private fun colorsList(): ArrayList<String> {
+        return arrayListOf(
+            "#43C86F", "#0C90F1", "#F72400", "#7A8089", "#D57C1D", "#770000", "#0022F8"
+        )
+    }
+
+    // endregion
+
+    // region members list
+    private fun setupMembersList() {
+        setupSelectedMembersList()
+
+        tv_select_members.setOnClickListener {
+            membersListDialog()
+        }
+    }
+
+    /**
+     * A function to setup the recyclerView for card assigned members.
+     */
+    private fun setupSelectedMembersList() {
+        // Assigned members of the Card.
+        val selectedMembersList = selectedMembersList(mMembersDetailList, thisCard().assignedTo)
+
+        if (selectedMembersList.isNotEmpty()) {
+            // This is for the last item to show.
+            selectedMembersList.add(SelectedMembers("", ""))
+            tv_select_members.visibility = View.GONE
+
+            rv_selected_members_list.apply {
+                visibility = View.VISIBLE
+                layoutManager = GridLayoutManager(this@CardDetailsActivity, 6)
+                adapter = CardMemberListItemsAdapter(
+                    this@CardDetailsActivity,
+                    selectedMembersList,
+                    true
+                ) {
+                    membersListDialog()
+                }
+            }
+
+        } else {
+            tv_select_members.visibility = View.VISIBLE
+            rv_selected_members_list.visibility = View.GONE
+        }
+    }
+
+    /**
+     * A function to launch and setup assigned members detail list into recyclerview.
+     */
+    private fun membersListDialog() {
+        // Here we get the updated assigned members list
+        val card = thisCard()
+
+        flagMemberSelectedStatus(mMembersDetailList, card.assignedTo)
+
+        val listDialog = MembersListDialog(
+            this@CardDetailsActivity,
+            mMembersDetailList,
+            resources.getString(R.string.str_select_member)
+        ) { user, action ->
+            changeUserAssignment(card, user, action)
+            setupSelectedMembersList()
+        }
+        listDialog.show()
+    }
+
+    private fun changeUserAssignment(
+        card: Card,
+        user: User,
+        action: String
+    ) {
+        if (action == Constants.SELECT) {
+            if (!card.assignedTo.contains(user.id)) {
+                card.assignedTo.add(user.id)
+            }
+
+        } else {
+            card.assignedTo.remove(user.id)
+            deselect(mMembersDetailList, user)
+        }
+    }
+
+    private fun setupDueDate(card: Card) {
+        mSelectedDueDateMilliSeconds = card.dueDate
+        if (mSelectedDueDateMilliSeconds > 0) {
+            val selectedDate = dateFormat().format(Date(mSelectedDueDateMilliSeconds))
+            tv_select_due_date.text = selectedDate
+        }
+
+        tv_select_due_date.setOnClickListener {
+            showDataPicker()
+        }
+    }
+
+    // endregion
+
+    // region due date
+    /**
+     * The function to show the DatePicker Dialog and select the due date.
+     */
+    private fun showDataPicker() {
+        val c = getCalendar()
+
+        DatePickerDialog(
+            this,
+            onDateSetListener(),
+            c.get(Calendar.YEAR),
+            c.get(Calendar.MONTH),
+            c.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun getCalendar(): Calendar {
+        val c = Calendar.getInstance()
+        if (mSelectedDueDateMilliSeconds > 0L) {
+            c.timeInMillis = mSelectedDueDateMilliSeconds
+        }
+        return c
+    }
+
+    private fun onDateSetListener() =
+        DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            val calendar = Calendar.getInstance()
+            calendar.set(year, monthOfYear, dayOfMonth, 0, 0)
+            val theDate = calendar.time
+
+            val sdf = dateFormat()
+            val selectedDate = sdf.format(theDate)
+            // Selected date it set to the TextView to make it visible to user.
+            tv_select_due_date.text = selectedDate
+
+            mSelectedDueDateMilliSeconds = theDate.time
+        }
+
+    private fun setupUpdateButton() {
+        btn_update_card_details.setOnClickListener {
+            if (et_name_card_details.text.toString().isNotEmpty()) {
+                updateCardDetails()
+            } else {
+                Toast.makeText(this@CardDetailsActivity, "Enter card name.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+    // endregion
+
+    // region update
     /**
      * A function to update card details.
      */
@@ -154,6 +281,45 @@ class CardDetailsActivity : BaseActivity() {
         addUpdateTaskList()
     }
 
+    private fun addUpdateTaskList() {
+        // Show the progress dialog.
+        pleaseWait()
+        store.addUpdateTaskList(board = mBoardDetails,
+            onSuccess = { addUpdateTaskListSuccess() },
+            onFailure = { hideProgressDialog() })
+    }
+
+    /**
+     * A function to get the result of add or updating the task list.
+     */
+    private fun addUpdateTaskListSuccess() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+    // endregion
+
+    // region menu options
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu to use in the action bar
+        menuInflater.inflate(R.menu.menu_delete_card, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar menu items
+        when (item.itemId) {
+            R.id.action_delete_card -> {
+                val card = thisCard()
+                alertDialogForDeleteCard(card.name)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+    // endregion
+
+    // region delete card
     /**
      * A function to show an alert dialog for the confirmation to delete the card.
      */
@@ -202,143 +368,11 @@ class CardDetailsActivity : BaseActivity() {
 
         addUpdateTaskList()
     }
-
-    /**
-     * A function to remove the text and set the label color to the TextView.
-     */
-    private fun setColor(color: String) {
-        mSelectedColor = color
-        tv_select_label_color.text = ""
-        tv_select_label_color.setBackgroundColor(Color.parseColor(color))
-    }
-
-    /**
-     * A function to add some static label colors in the list.
-     */
-    private fun colorsList(): ArrayList<String> {
-        return arrayListOf(
-            "#43C86F", "#0C90F1", "#F72400", "#7A8089", "#D57C1D", "#770000", "#0022F8"
-        )
-    }
-
-    /**
-     * A function to launch the label color list dialog.
-     */
-    private fun labelColorsListDialog() {
-        val colorsList: ArrayList<String> = colorsList()
-        val listDialog = LabelColorListDialog(
-            this@CardDetailsActivity,
-            colorsList,
-            resources.getString(R.string.str_select_label_color),
-            mSelectedColor
-        ) { color -> setColor(color) }
-        listDialog.show()
-    }
-
-    /**
-     * A function to launch and setup assigned members detail list into recyclerview.
-     */
-    private fun membersListDialog() {
-        // Here we get the updated assigned members list
-        val card = thisCard()
-
-        MembersHelper.flagMemberSelectedStatus(mMembersDetailList, card.assignedTo)
-
-        val listDialog = MembersListDialog(
-            this@CardDetailsActivity,
-            mMembersDetailList,
-            resources.getString(R.string.str_select_member)
-        ) { user, action ->
-            if (action == Constants.SELECT) {
-                if (!card.assignedTo.contains(user.id)) {
-                    card.assignedTo.add(user.id)
-                }
-
-            } else {
-                card.assignedTo.remove(user.id)
-                MembersHelper.deselect(mMembersDetailList, user)
-            }
-
-            setupSelectedMembersList()
-        }
-        listDialog.show()
-    }
-
-    /**
-     * A function to setup the recyclerView for card assigned members.
-     */
-    private fun setupSelectedMembersList() {
-        // Assigned members of the Card.
-        val card = thisCard()
-
-        val selectedMembersList =
-            MembersHelper.selectedMembersList(mMembersDetailList, card.assignedTo)
-
-        if (selectedMembersList.isNotEmpty()) {
-            // This is for the last item to show.
-            selectedMembersList.add(SelectedMembers("", ""))
-            tv_select_members.visibility = View.GONE
-
-            rv_selected_members_list.apply {
-                visibility = View.VISIBLE
-                layoutManager = GridLayoutManager(this@CardDetailsActivity, 6)
-                adapter = CardMemberListItemsAdapter(
-                    this@CardDetailsActivity,
-                    selectedMembersList,
-                    true
-                ) {
-                    membersListDialog()
-                }
-            }
-        } else {
-            tv_select_members.visibility = View.VISIBLE
-            rv_selected_members_list.visibility = View.GONE
-        }
-    }
+    // endregion
 
     private fun thisCard() = thisTask().cards[mCardPosition]
 
     private fun thisTask() = mBoardDetails.taskList[mTaskListPosition]
 
-    /**
-     * The function to show the DatePicker Dialog and select the due date.
-     */
-    private fun showDataPicker() {
-        val onDateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-                val calendar = Calendar.getInstance()
-                calendar.set(year, monthOfYear, dayOfMonth, 0, 0)
-                val theDate = calendar.time
-
-                val sdf = dateFormat()
-                val selectedDate = sdf.format(theDate)
-                // Selected date it set to the TextView to make it visible to user.
-                tv_select_due_date.text = selectedDate
-
-                mSelectedDueDateMilliSeconds = theDate.time
-            }
-
-        val c = Calendar.getInstance()
-        if (mSelectedDueDateMilliSeconds > 0L) {
-            c.timeInMillis = mSelectedDueDateMilliSeconds
-        }
-        val dpd = DatePickerDialog(
-            this,
-            onDateSetListener,
-            c.get(Calendar.YEAR),
-            c.get(Calendar.MONTH),
-            c.get(Calendar.DAY_OF_MONTH)
-        )
-        dpd.show()
-    }
-
     private fun dateFormat() = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
-
-    private fun addUpdateTaskList() {
-        // Show the progress dialog.
-        pleaseWait()
-        store.addUpdateTaskList(board = mBoardDetails,
-            onSuccess = { addUpdateTaskListSuccess() },
-            onFailure = { hideProgressDialog() })
-    }
 }

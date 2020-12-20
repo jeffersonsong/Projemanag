@@ -13,6 +13,8 @@ import com.projemanag.firebase.FirestoreClass
 import com.projemanag.model.Board
 import com.projemanag.utils.Constants
 import com.projemanag.utils.ImageChooserHelper
+import com.projemanag.utils.ImageChooserHelper.onRequestPermissionsResultForImageChooser
+import com.projemanag.utils.ImageChooserHelper.showImageChooserOrRequestPermission
 import kotlinx.android.synthetic.main.activity_create_board.*
 import kotlinx.android.synthetic.main.activity_my_profile.*
 import java.io.IOException
@@ -34,14 +36,14 @@ class CreateBoardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_board)
 
-        setupActionBar()
+        setupActionBar(toolbar_create_board_activity)
 
         if (intent.hasExtra(Constants.NAME)) {
             mUserName = intent.getStringExtra(Constants.NAME)!!
         }
 
         iv_board_image.setOnClickListener { view ->
-            ImageChooserHelper.showImageChooserOrRequestPermission(this@CreateBoardActivity)
+            showImageChooserOrRequestPermission(this@CreateBoardActivity)
         }
 
         btn_create.setOnClickListener {
@@ -50,7 +52,6 @@ class CreateBoardActivity : BaseActivity() {
                 uploadBoardImage()
             } else {
                 pleaseWait()
-                // Call a function to update create a board.
                 createBoard()
             }
         }
@@ -69,7 +70,7 @@ class CreateBoardActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        ImageChooserHelper.onRequestPermissionsResultForImageChooser(
+        onRequestPermissionsResultForImageChooser(
             this@CreateBoardActivity,
             requestCode,
             grantResults
@@ -99,20 +100,12 @@ class CreateBoardActivity : BaseActivity() {
     }
 
     /**
-     * A function to setup action bar
-     */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_create_board_activity)
-    }
-
-    /**
      * A function to upload the Board Image to storage and getting the downloadable URL of the image.
      */
     private fun uploadBoardImage() {
         pleaseWait()
         //getting the storage reference
-        val fileName = ("BOARD_IMAGE" + System.currentTimeMillis() + "."
-                + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri))
+        val fileName = imageFileName()
         imageStorage.uploadImage(
             mSelectedImageFileUri = mSelectedImageFileUri!!,
             fileName = fileName,
@@ -137,33 +130,21 @@ class CreateBoardActivity : BaseActivity() {
         )
     }
 
+    private fun imageFileName() = ("BOARD_IMAGE" + System.currentTimeMillis() + "."
+            + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri))
+
     /**
      * A function to make an entry of a board in the database.
      */
     private fun createBoard() {
-        //  A list is created to add the assigned menu_members.
-        //  This can be modified later on as of now the user itself will be the member of the board.
-        val assignedUsersArrayList: ArrayList<String> = ArrayList()
-        assignedUsersArrayList.add(getCurrentUserID()) // adding the current user id.
-
-        // Creating the instance of the Board and adding the values as per parameters.
         val board = Board(
             et_board_name.text.toString(),
             mBoardImageURL,
             mUserName,
-            assignedUsersArrayList
+            arrayListOf(getCurrentUserID())
         )
 
         createBoard(board)
-    }
-
-    /**
-     * A function for notifying the board is created successfully.
-     */
-    private fun boardCreatedSuccessfully() {
-        hideProgressDialog()
-        setResult(Activity.RESULT_OK)
-        finish()
     }
 
     private fun createBoard(board: Board) {
@@ -179,5 +160,14 @@ class CreateBoardActivity : BaseActivity() {
                 boardCreatedSuccessfully()
             },
             onFailure = { hideProgressDialog() })
+    }
+
+    /**
+     * A function for notifying the board is created successfully.
+     */
+    private fun boardCreatedSuccessfully() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
     }
 }

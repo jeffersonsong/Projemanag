@@ -151,10 +151,7 @@ class TaskListActivity : BaseActivity() {
         // Remove the last item
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
-        val cardAssignedUsersList: ArrayList<String> = ArrayList()
-        cardAssignedUsersList.add(getCurrentUserID())
-
-        val card = Card(cardName, getCurrentUserID(), cardAssignedUsersList)
+        val card = Card(cardName, getCurrentUserID(), arrayListOf(getCurrentUserID()))
 
         val cardsList = mBoardDetails.taskList[position].cards
         cardsList.add(card)
