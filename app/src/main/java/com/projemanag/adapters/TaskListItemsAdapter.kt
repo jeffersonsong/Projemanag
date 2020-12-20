@@ -223,9 +223,7 @@ open class TaskListItemsAdapter(
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount(): Int {
-        return list.size
-    }
+    override fun getItemCount() = list.size
 
     /**
      * A function to get density pixel from pixel
