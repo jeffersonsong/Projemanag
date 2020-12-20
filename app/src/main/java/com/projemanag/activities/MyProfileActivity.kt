@@ -185,7 +185,6 @@ class MyProfileActivity : BaseActivity() {
     }
 
 
-
     /**
      * A function to upload the selected user image to firebase cloud storage.
      */
@@ -199,7 +198,7 @@ class MyProfileActivity : BaseActivity() {
 
             imageStorage.uploadImage(
                 mSelectedImageFileUri!!, fileName,
-                {uri->
+                { uri ->
                     Log.e("Downloadable Image URL", uri.toString())
                     // assign the image url to the variable.
                     mProfileImageURL = uri.toString()
@@ -207,7 +206,7 @@ class MyProfileActivity : BaseActivity() {
                     // Call a function to update user details in the database.
                     updateUserProfileData()
                 },
-                {exception ->
+                { exception ->
                     Toast.makeText(
                         this@MyProfileActivity,
                         exception.message,
@@ -222,13 +221,14 @@ class MyProfileActivity : BaseActivity() {
 
     private fun loadUserData() {
         store.loadUserData(
-            { user -> setUserDataInUI(user) },
-            { hideProgressDialog() })
+            onSuccess = { user -> setUserDataInUI(user) },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
         store.updateUserProfileData(
-            userHashMap,
-            { profileUpdateSuccess() }, { hideProgressDialog() })
+            userHashMap = userHashMap,
+            onSuccess = { profileUpdateSuccess() },
+            onFailure = { hideProgressDialog() })
     }
 }

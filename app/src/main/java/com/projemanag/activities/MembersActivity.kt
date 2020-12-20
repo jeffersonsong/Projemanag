@@ -78,7 +78,7 @@ class MembersActivity : BaseActivity() {
         hideProgressDialog()
         rv_members_list.layoutManager = LinearLayoutManager(this@MembersActivity)
         rv_members_list.setHasFixedSize(true)
-        val adapter = MemberListItemsAdapter(this@MembersActivity, list) {position, user, action ->
+        val adapter = MemberListItemsAdapter(this@MembersActivity, list) { position, user, action ->
         }
         rv_members_list.adapter = adapter
     }
@@ -123,23 +123,24 @@ class MembersActivity : BaseActivity() {
         SendNotificationToUserAsyncTask(mBoardDetails.name,
             user.fcmToken,
             mAssignedMembersList[0].name,
-            { pleaseWait()  },
+            { pleaseWait() },
             { hideProgressDialog() }).execute()
     }
 
     private fun assignMemberToBoard(user: User) {
-        store.assignMemberToBoard(mBoardDetails, user,
-            { user -> memberAssignSuccess(user) },
-            { hideProgressDialog() })
+        store.assignMemberToBoard(
+            board = mBoardDetails, user = user,
+            onSuccess = { user -> memberAssignSuccess(user) },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun getAssignedMembersListDetails() {
         // Show the progress dialog.
         pleaseWait()
         store.getAssignedMembersListDetails(
-            mBoardDetails.assignedTo,
-            { usersList -> setupMembersList(usersList) },
-            { hideProgressDialog() }
+            assignedTo = mBoardDetails.assignedTo,
+            onSuccess = { usersList -> setupMembersList(usersList) },
+            onFailure = { hideProgressDialog() }
         )
     }
 
@@ -147,12 +148,12 @@ class MembersActivity : BaseActivity() {
         // Show the progress dialog.
         pleaseWait()
         store.getMemberDetails(
-            email,
-            { user -> memberDetails(user) },
-            {
+            email = email,
+            onUserFound = { user -> memberDetails(user) },
+            noUserFound = {
                 hideProgressDialog()
                 showErrorSnackBar("No such member found.")
             },
-            { hideProgressDialog() })
+            onFailure = { hideProgressDialog() })
     }
 }

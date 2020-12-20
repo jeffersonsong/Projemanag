@@ -89,11 +89,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.nav_my_profile -> {
-
-                startActivityForResult(
-                    Intent(this@MainActivity, MyProfileActivity::class.java),
-                    MY_PROFILE_REQUEST_CODE
-                )
+                val intent = Intent(this@MainActivity, MyProfileActivity::class.java)
+                startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_sign_out -> {
@@ -247,22 +244,23 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Show the progress dialog.
         pleaseWait()
         store.getBoardsList(
-            { boardsList -> populateBoardsListToUI(boardsList) },
-            { hideProgressDialog() })
+            onSuccess = { boardsList -> populateBoardsListToUI(boardsList) },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun loadUserData(readBoardsList: Boolean = false) {
         pleaseWait()
         store.loadUserData(
-            { user -> updateNavigationUserDetails(user, readBoardsList) },
-            { hideProgressDialog() })
+            onSuccess = { user -> updateNavigationUserDetails(user, readBoardsList) },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
         pleaseWait()
         store.updateUserProfileData(
-            userHashMap,
-            { tokenUpdateSuccess() }, { hideProgressDialog() })
+            userHashMap = userHashMap,
+            onSuccess = { tokenUpdateSuccess() },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun signOut() {

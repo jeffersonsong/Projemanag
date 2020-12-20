@@ -224,24 +224,25 @@ class TaskListActivity : BaseActivity() {
     private fun getAssignedMembersListDetails() {
         pleaseWait()
         firestore.getAssignedMembersListDetails(
-            mBoardDetails.assignedTo,
-            { usersList -> boardMembersDetailList(usersList) },
-            { hideProgressDialog() }
+            assignedTo = mBoardDetails.assignedTo,
+            onSuccess = { usersList -> boardMembersDetailList(usersList) },
+            onFailure = { hideProgressDialog() }
         )
     }
 
     private fun getBoardDetails(boardId: String) {
         pleaseWait()
-        firestore.getBoardDetails(boardId,
-            { board -> boardDetails(board) },
-            { hideProgressDialog() })
+        firestore.getBoardDetails(
+            documentId = boardId,
+            onSuccess = { board -> boardDetails(board) },
+            onFailure = { hideProgressDialog() })
     }
 
     private fun addUpdateTaskList() {
         pleaseWait()
-        firestore.addUpdateTaskList(mBoardDetails,
-            { addUpdateTaskListSuccess() },
-            { hideProgressDialog() })
+        firestore.addUpdateTaskList(board = mBoardDetails,
+            onSuccess = { addUpdateTaskListSuccess() },
+            onFailure = { hideProgressDialog() })
     }
 
     /**

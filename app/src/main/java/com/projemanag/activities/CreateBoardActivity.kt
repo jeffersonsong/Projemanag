@@ -192,8 +192,8 @@ class CreateBoardActivity : BaseActivity() {
 
     private fun createBoard(board: Board) {
         store.createBoard(
-            board,
-            {
+            board = board,
+            onSuccess = {
                 Toast.makeText(
                     this@CreateBoardActivity,
                     "Board created successfully.",
@@ -202,6 +202,6 @@ class CreateBoardActivity : BaseActivity() {
 
                 boardCreatedSuccessfully()
             },
-            { hideProgressDialog() })
+            onFailure = { hideProgressDialog() })
     }
 }

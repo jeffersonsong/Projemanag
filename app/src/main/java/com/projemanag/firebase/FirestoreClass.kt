@@ -19,12 +19,12 @@ class FirestoreClass {
     /**
      * A function to make an entry of the registered user in the firestore database.
      */
-    fun registerUser(userInfo: User, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun registerUser(user: User, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         mFireStore.collection(Constants.USERS)
             // Document ID for users fields. Here the document it is the User ID.
             .document(getCurrentUserID())
             // Here the userInfo are Field and the SetOption is set to merge. It is for if we wants to merge
-            .set(userInfo, SetOptions.merge())
+            .set(user, SetOptions.merge())
             .addOnSuccessListener {
                 // Here call a function of base activity for transferring the result to it.
                 onSuccess()
@@ -39,7 +39,6 @@ class FirestoreClass {
      * A function to SignIn using firebase and get the user details from Firestore Database.
      */
     fun loadUserData(onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-
         // Here we pass the collection name from which we wants the data.
         mFireStore.collection(Constants.USERS)
             // The document id to get the Fields of user.
@@ -104,7 +103,6 @@ class FirestoreClass {
      * A function to get the list of created boards from the database.
      */
     fun getBoardsList(onSuccess: (ArrayList<Board>) -> Unit, onFailure: (Exception) -> Unit) {
-
         // The collection name for BOARDS
         mFireStore.collection(Constants.BOARDS)
             // A where array query as we want the list of the board in which the user is assigned. So here you can pass the current user id.

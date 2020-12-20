@@ -418,8 +418,8 @@ class CardDetailsActivity : BaseActivity() {
     private fun addUpdateTaskList() {
         // Show the progress dialog.
         pleaseWait()
-        store.addUpdateTaskList(mBoardDetails,
-            { addUpdateTaskListSuccess() },
-            { hideProgressDialog() })
+        store.addUpdateTaskList(board = mBoardDetails,
+            onSuccess = { addUpdateTaskListSuccess() },
+            onFailure = { hideProgressDialog() })
     }
 }

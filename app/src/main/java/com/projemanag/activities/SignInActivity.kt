@@ -104,7 +104,7 @@ class SignInActivity : BaseActivity() {
 
     private fun loadUserData() {
         firestore.loadUserData(
-            { user -> signInSuccess(user) },
-            { hideProgressDialog() })
+            onSuccess = { user -> signInSuccess(user) },
+            onFailure = { hideProgressDialog() })
     }
 }

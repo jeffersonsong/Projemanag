@@ -122,9 +122,9 @@ class SignUpActivity : BaseActivity() {
 
     private fun registerUser(user: User) {
         firestore.registerUser(
-            user,
-            { userRegisteredSuccess() },
-            { e -> hideProgressDialog() })
+            user = user,
+            onSuccess = { userRegisteredSuccess() },
+            onFailure = { e -> hideProgressDialog() })
     }
 
     private fun signOut() {
