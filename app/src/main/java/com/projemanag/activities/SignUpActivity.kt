@@ -29,7 +29,7 @@ class SignUpActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        setupActionBar()
+        setupActionBar(toolbar_sign_up_activity)
 
         // Click event for sign-up button.
         btn_sign_up.setOnClickListener {
@@ -37,13 +37,7 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function for actionBar Setup.
-     */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_sign_up_activity)
-    }
-
+    // region register user
     /**
      * A function to register a user to our app using the Firebase.
      * For more details visit: https://firebase.google.com/docs/auth/android/custom-auth
@@ -82,29 +76,6 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function to be called the user is registered successfully and entry is made in the firestore database.
-     */
-    private fun userRegisteredSuccess() {
-
-        Toast.makeText(
-            this@SignUpActivity,
-            "You have successfully registered.",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        // Hide the progress dialog
-        hideProgressDialog()
-
-        /**
-         * Here the new user registered is automatically signed-in so we just sign-out the user from firebase
-         * and send him to Intro Screen for Sign-In
-         */
-        signOut()
-        // Finish the Sign-Up Screen
-        finish()
-    }
-
     private fun createUserWithEmailAndPassword(
         name: String,
         email: String,
@@ -127,7 +98,30 @@ class SignUpActivity : BaseActivity() {
             onFailure = { e -> hideProgressDialog() })
     }
 
+    /**
+     * A function to be called the user is registered successfully and entry is made in the firestore database.
+     */
+    private fun userRegisteredSuccess() {
+        Toast.makeText(
+            this@SignUpActivity,
+            "You have successfully registered.",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        // Hide the progress dialog
+        hideProgressDialog()
+
+        /**
+         * Here the new user registered is automatically signed-in so we just sign-out the user from firebase
+         * and send him to Intro Screen for Sign-In
+         */
+        signOut()
+        // Finish the Sign-Up Screen
+        finish()
+    }
+
     private fun signOut() {
         authentication.signOut()
     }
+    // endregion
 }

@@ -31,28 +31,43 @@ class MembersActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_members)
 
+        setupActionBar(toolbar_members_activity)
+
         if (intent.hasExtra(Constants.BOARD_DETAIL)) {
             mBoardDetails = intent.getParcelableExtra(Constants.BOARD_DETAIL)!!
-        }
 
-        setupActionBar()
-        getAssignedMembersListDetails()
+            getAssignedMembersListDetails()
+        }
     }
 
-    override fun onBackPressed() {
-        if (anyChangesDone) {
-            setResult(Activity.RESULT_OK)
-        }
-        super.onBackPressed()
+    // region display member list
+    private fun getAssignedMembersListDetails() {
+        // Show the progress dialog.
+        pleaseWait()
+        store.getAssignedMembersListDetails(
+            assignedTo = mBoardDetails.assignedTo,
+            onSuccess = { usersList -> setupMembersList(usersList) },
+            onFailure = { hideProgressDialog() }
+        )
     }
 
     /**
-     * A function to setup action bar
+     * A function to setup assigned members list into recyclerview.
      */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_members_activity)
-    }
+    private fun setupMembersList(list: ArrayList<User>) {
+        mAssignedMembersList = list
+        hideProgressDialog()
 
+        rv_members_list.apply {
+            layoutManager = LinearLayoutManager(this@MembersActivity)
+            setHasFixedSize(true)
+            adapter = MemberListItemsAdapter(this@MembersActivity, list) { position, user, action ->
+            }
+        }
+    }
+    // endregion
+
+    // region add member
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu to use in the action bar
         menuInflater.inflate(R.menu.menu_add_member, menu)
@@ -68,20 +83,6 @@ class MembersActivity : BaseActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * A function to setup assigned members list into recyclerview.
-     */
-    private fun setupMembersList(list: ArrayList<User>) {
-        mAssignedMembersList = list
-        hideProgressDialog()
-        rv_members_list.apply {
-            layoutManager = LinearLayoutManager(this@MembersActivity)
-            setHasFixedSize(true)
-            adapter = MemberListItemsAdapter(this@MembersActivity, list) { position, user, action ->
-            }
-        }
     }
 
     /**
@@ -108,9 +109,29 @@ class MembersActivity : BaseActivity() {
         dialog.show()
     }
 
+    private fun getMemberDetails(email: String) {
+        // Show the progress dialog.
+        pleaseWait()
+        store.getMemberDetails(
+            email = email,
+            onUserFound = { user -> memberDetails(user) },
+            noUserFound = {
+                hideProgressDialog()
+                showErrorSnackBar("No such member found.")
+            },
+            onFailure = { hideProgressDialog() })
+    }
+
     private fun memberDetails(user: User) {
         mBoardDetails.assignedTo.add(user.id)
         assignMemberToBoard(user)
+    }
+
+    private fun assignMemberToBoard(member: User) {
+        store.assignMemberToBoard(
+            board = mBoardDetails, user = member,
+            onSuccess = { user -> memberAssignSuccess(user) },
+            onFailure = { hideProgressDialog() })
     }
 
     /**
@@ -127,34 +148,12 @@ class MembersActivity : BaseActivity() {
             { pleaseWait() },
             { hideProgressDialog() }).execute()
     }
+    // endregion
 
-    private fun assignMemberToBoard(user: User) {
-        store.assignMemberToBoard(
-            board = mBoardDetails, user = user,
-            onSuccess = { user -> memberAssignSuccess(user) },
-            onFailure = { hideProgressDialog() })
-    }
-
-    private fun getAssignedMembersListDetails() {
-        // Show the progress dialog.
-        pleaseWait()
-        store.getAssignedMembersListDetails(
-            assignedTo = mBoardDetails.assignedTo,
-            onSuccess = { usersList -> setupMembersList(usersList) },
-            onFailure = { hideProgressDialog() }
-        )
-    }
-
-    private fun getMemberDetails(email: String) {
-        // Show the progress dialog.
-        pleaseWait()
-        store.getMemberDetails(
-            email = email,
-            onUserFound = { user -> memberDetails(user) },
-            noUserFound = {
-                hideProgressDialog()
-                showErrorSnackBar("No such member found.")
-            },
-            onFailure = { hideProgressDialog() })
+    override fun onBackPressed() {
+        if (anyChangesDone) {
+            setResult(Activity.RESULT_OK)
+        }
+        super.onBackPressed()
     }
 }

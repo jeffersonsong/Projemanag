@@ -60,6 +60,7 @@
 
     <string name="str_select_member">Select Member</string>
 
-
     <string name="default_notification_channel_id">projemanag_notification_channel_id</string>
+
+    <string name="created_by">Created By</string>
 </resources>

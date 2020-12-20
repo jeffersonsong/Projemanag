@@ -41,45 +41,13 @@ class TaskListActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function to setup action bar
-     */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_task_list_activity, mBoardDetails.name)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // Inflate the menu to use in the action bar
-        menuInflater.inflate(R.menu.menu_members, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle presses on the action bar menu items
-        when (item.itemId) {
-            R.id.action_members -> {
-                gotoMembersScreen()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun gotoMembersScreen() {
-        val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
-        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-        startActivityForResult(intent, MEMBERS_REQUEST_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK
-            && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
-        ) {
-            getBoardDetails(mBoardDocumentId)
-        } else {
-            Log.e("Cancelled", "Cancelled")
-        }
+    // region display board
+    private fun getBoardDetails(boardId: String) {
+        pleaseWait()
+        firestore.getBoardDetails(
+            documentId = boardId,
+            onSuccess = { board -> boardDetails(board) },
+            onFailure = { hideProgressDialog() })
     }
 
     /**
@@ -90,87 +58,17 @@ class TaskListActivity : BaseActivity() {
 
         hideProgressDialog()
         // Call the function to setup action bar.
-        setupActionBar()
+        setupActionBar(toolbar_task_list_activity, mBoardDetails.name)
         getAssignedMembersListDetails()
     }
 
-    /**
-     * A function to get the task list name from the adapter class which we will be using to create a new task list in the database.
-     */
-    fun createTaskList(taskListName: String) {
-
-        Log.e("Task List Name", taskListName)
-
-        // Create and Assign the task details
-        val task = Task(taskListName, getCurrentUserID())
-
-        mBoardDetails.taskList.add(0, task) // Add task to the first position of ArrayList
-
-        addUpdateTaskList()
-    }
-
-    /**
-     * A function to update the taskList
-     */
-    fun updateTaskList(position: Int, listName: String, model: Task) {
-        val task = Task(listName, model.createdBy)
-        mBoardDetails.taskList[position] = task
-
-        addUpdateTaskList()
-    }
-
-    /**
-     * A function to delete the task list from database.
-     */
-    fun deleteTaskList(position: Int) {
-        mBoardDetails.taskList.removeAt(position)
-        addUpdateTaskList()
-    }
-
-    /**
-     * A function to get the result of add or updating the task list.
-     */
-    private fun addUpdateTaskListSuccess() {
-        hideProgressDialog()
-        // Here get the updated board details.
-        // Show the progress dialog.
-        getBoardDetails(mBoardDetails.documentId)
-    }
-
-    /**
-     * A function to create a card and update it in the task list.
-     */
-    fun addCardToTaskList(position: Int, cardName: String) {
-        val card = Card(cardName, getCurrentUserID(), arrayListOf(getCurrentUserID()))
-
-        val cardsList = mBoardDetails.taskList[position].cards
-        cardsList.add(card)
-
-        val task = Task(
-            mBoardDetails.taskList[position].title,
-            mBoardDetails.taskList[position].createdBy,
-            cardsList
+    private fun getAssignedMembersListDetails() {
+        pleaseWait()
+        firestore.getAssignedMembersListDetails(
+            assignedTo = mBoardDetails.assignedTo,
+            onSuccess = { usersList -> boardMembersDetailList(usersList) },
+            onFailure = { hideProgressDialog() }
         )
-
-        mBoardDetails.taskList[position] = task
-
-        addUpdateTaskList()
-    }
-
-    /**
-     * A function for viewing and updating card details.
-     */
-    fun cardDetails(taskListPosition: Int, cardPosition: Int) {
-        gotoCardDetailsScreen(taskListPosition, cardPosition)
-    }
-
-    private fun gotoCardDetailsScreen(taskListPosition: Int, cardPosition: Int) {
-        val intent = Intent(this@TaskListActivity, CardDetailsActivity::class.java)
-        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
-        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
-        intent.putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMembersDetailList)
-        startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
     }
 
     /**
@@ -218,6 +116,106 @@ class TaskListActivity : BaseActivity() {
             )
         }
     }
+    // endregion
+
+    // region menu options
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu to use in the action bar
+        menuInflater.inflate(R.menu.menu_members, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar menu items
+        when (item.itemId) {
+            R.id.action_members -> {
+                gotoMembersScreen()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun gotoMembersScreen() {
+        val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        startActivityForResult(intent, MEMBERS_REQUEST_CODE)
+    }
+    // endregion
+
+    // region create task
+    /**
+     * A function to get the task list name from the adapter class which we will be using to create a new task list in the database.
+     */
+    fun createTaskList(taskListName: String) {
+        Log.e("Task List Name", taskListName)
+
+        // Create and Assign the task details
+        val task = Task(taskListName, getCurrentUserID())
+        mBoardDetails.taskList.add(0, task) // Add task to the first position of ArrayList
+        addUpdateTaskList()
+    }
+
+    private fun addUpdateTaskList() {
+        pleaseWait()
+        firestore.addUpdateTaskList(board = mBoardDetails,
+            onSuccess = { addUpdateTaskListSuccess() },
+            onFailure = { hideProgressDialog() })
+    }
+
+    /**
+     * A function to get the result of add or updating the task list.
+     */
+    private fun addUpdateTaskListSuccess() {
+        hideProgressDialog()
+        // Here get the updated board details.
+        // Show the progress dialog.
+        getBoardDetails(mBoardDetails.documentId)
+    }
+    // endregion
+
+    // region update task
+    /**
+     * A function to update the taskList
+     */
+    fun updateTaskList(position: Int, listName: String, model: Task) {
+        val task = Task(listName, model.createdBy)
+        mBoardDetails.taskList[position] = task
+
+        addUpdateTaskList()
+    }
+    // endregion
+
+    // delete task
+    /**
+     * A function to delete the task list from database.
+     */
+    fun deleteTaskList(position: Int) {
+        mBoardDetails.taskList.removeAt(position)
+        addUpdateTaskList()
+    }
+    //endregion
+
+    // region add/update/display card in task list
+    /**
+     * A function to create a card and update it in the task list.
+     */
+    fun addCardToTaskList(position: Int, cardName: String) {
+        val card = Card(cardName, getCurrentUserID(), arrayListOf(getCurrentUserID()))
+
+        val cardsList = mBoardDetails.taskList[position].cards
+        cardsList.add(card)
+
+        val task = Task(
+            mBoardDetails.taskList[position].title,
+            mBoardDetails.taskList[position].createdBy,
+            cardsList
+        )
+
+        mBoardDetails.taskList[position] = task
+
+        addUpdateTaskList()
+    }
 
     /**
      * A function to update the card list in the particular task list.
@@ -228,28 +226,32 @@ class TaskListActivity : BaseActivity() {
         addUpdateTaskList()
     }
 
-    private fun getAssignedMembersListDetails() {
-        pleaseWait()
-        firestore.getAssignedMembersListDetails(
-            assignedTo = mBoardDetails.assignedTo,
-            onSuccess = { usersList -> boardMembersDetailList(usersList) },
-            onFailure = { hideProgressDialog() }
-        )
+    /**
+     * A function for viewing and updating card details.
+     */
+    fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+        gotoCardDetailsScreen(taskListPosition, cardPosition)
     }
 
-    private fun getBoardDetails(boardId: String) {
-        pleaseWait()
-        firestore.getBoardDetails(
-            documentId = boardId,
-            onSuccess = { board -> boardDetails(board) },
-            onFailure = { hideProgressDialog() })
+    private fun gotoCardDetailsScreen(taskListPosition: Int, cardPosition: Int) {
+        val intent = Intent(this@TaskListActivity, CardDetailsActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMembersDetailList)
+        startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
     }
+    // endregion
 
-    private fun addUpdateTaskList() {
-        pleaseWait()
-        firestore.addUpdateTaskList(board = mBoardDetails,
-            onSuccess = { addUpdateTaskListSuccess() },
-            onFailure = { hideProgressDialog() })
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK
+            && (requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE)
+        ) {
+            getBoardDetails(mBoardDocumentId)
+        } else {
+            Log.e("Cancelled", "Cancelled")
+        }
     }
 
     /**

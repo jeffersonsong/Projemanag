@@ -55,7 +55,8 @@ open class BoardItemsAdapter(
             .into(view.iv_board_image)
 
         view.tv_name.text = model.name
-        view.tv_created_by.text = "Created By : ${model.createdBy}"
+        val createdBy = context.getString(R.string.created_by)
+        view.tv_created_by.text = "$createdBy : ${model.createdBy}"
 
         view.setOnClickListener {
             onClick(position, model)

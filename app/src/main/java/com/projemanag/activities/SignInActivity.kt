@@ -8,7 +8,6 @@ import android.widget.Toast
 import com.projemanag.R
 import com.projemanag.firebase.FirebaseAuthClass
 import com.projemanag.firebase.FirestoreClass
-import com.projemanag.model.User
 import kotlinx.android.synthetic.main.activity_sign_in.*
 
 class SignInActivity : BaseActivity() {
@@ -30,20 +29,14 @@ class SignInActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        setupActionBar()
+        setupActionBar(toolbar_sign_in_activity)
 
         btn_sign_in.setOnClickListener {
             signInRegisteredUser()
         }
     }
 
-    /**
-     * A function for actionBar Setup.
-     */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_sign_in_activity)
-    }
-
+    // region signin
     /**
      * A function for Sign-In using the registered user using the email and password.
      */
@@ -80,19 +73,6 @@ class SignInActivity : BaseActivity() {
         }
     }
 
-    /**
-     * A function to get the user details from the firestore database after authentication.
-     */
-    private fun signInSuccess() {
-        hideProgressDialog()
-        gotoMainScreen()
-        this.finish()
-    }
-
-    private fun gotoMainScreen() {
-        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-    }
-
     private fun signInWithEmailAndPassword(email: String, password: String) {
         authentication.signInWithEmailAndPassword(
             email, password,
@@ -111,4 +91,18 @@ class SignInActivity : BaseActivity() {
             onSuccess = { user -> signInSuccess() },
             onFailure = { hideProgressDialog() })
     }
+
+    /**
+     * A function to get the user details from the firestore database after authentication.
+     */
+    private fun signInSuccess() {
+        hideProgressDialog()
+        gotoMainScreen()
+        this.finish()
+    }
+
+    private fun gotoMainScreen() {
+        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+    }
+    // endregion
 }

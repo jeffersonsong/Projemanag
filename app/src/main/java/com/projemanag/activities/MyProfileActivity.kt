@@ -33,7 +33,7 @@ class MyProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_profile)
 
-        setupActionBar()
+        setupActionBar(toolbar_my_profile_activity, resources.getString(R.string.my_profile))
 
         loadUserData()
 
@@ -51,6 +51,56 @@ class MyProfileActivity : BaseActivity() {
                 updateUserProfileData()
             }
         }
+    }
+
+    // region display user
+    private fun loadUserData() {
+        store.loadUserData(
+            onSuccess = { user -> setUserDataInUI(user) },
+            onFailure = { hideProgressDialog() })
+    }
+
+    /**
+     * A function to set the existing details in UI.
+     */
+    private fun setUserDataInUI(user: User) {
+        // Initialize the user details variable
+        mUserDetails = user
+
+        Glide
+            .with(this@MyProfileActivity)
+            .load(user.image)
+            .centerCrop()
+            .placeholder(R.drawable.ic_user_place_holder)
+            .into(iv_profile_user_image)
+
+        et_name.setText(user.name)
+        et_email.setText(user.email)
+        if (user.mobile != 0L) {
+            et_mobile.setText(user.mobile.toString())
+        }
+    }
+    // endregion
+
+    // region choose image
+    /**
+     * This function will identify the result of runtime permission after the user allows or deny permission based on the unique code.
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        ImageChooserHelper.onRequestPermissionsResultForImageChooser(
+            this@MyProfileActivity,
+            requestCode,
+            grantResults
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -75,91 +125,9 @@ class MyProfileActivity : BaseActivity() {
             }
         }
     }
+    //endregion
 
-    /**
-     * This function will identify the result of runtime permission after the user allows or deny permission based on the unique code.
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        ImageChooserHelper.onRequestPermissionsResultForImageChooser(
-            this@MyProfileActivity,
-            requestCode,
-            grantResults
-        )
-    }
-
-    /**
-     * A function to setup action bar
-     */
-    private fun setupActionBar() {
-        setupActionBar(toolbar_my_profile_activity, resources.getString(R.string.my_profile))
-    }
-
-    /**
-     * A function to set the existing details in UI.
-     */
-    private fun setUserDataInUI(user: User) {
-        // Initialize the user details variable
-        mUserDetails = user
-
-        Glide
-            .with(this@MyProfileActivity)
-            .load(user.image)
-            .centerCrop()
-            .placeholder(R.drawable.ic_user_place_holder)
-            .into(iv_profile_user_image)
-
-        et_name.setText(user.name)
-        et_email.setText(user.email)
-        if (user.mobile != 0L) {
-            et_mobile.setText(user.mobile.toString())
-        }
-    }
-
-    /**
-     * A function to update the user profile details into the database.
-     */
-    private fun updateUserProfileData() {
-        val userHashMap = HashMap<String, Any>()
-
-        if (mProfileImageURL.isNotEmpty() && mProfileImageURL != mUserDetails.image) {
-            userHashMap[Constants.IMAGE] = mProfileImageURL
-        }
-
-        if (et_name.text.toString() != mUserDetails.name) {
-            userHashMap[Constants.NAME] = et_name.text.toString()
-        }
-
-        if (et_mobile.text.toString() != mUserDetails.mobile.toString()) {
-            userHashMap[Constants.MOBILE] = et_mobile.text.toString().toLong()
-        }
-
-        // Update the data in the database.
-        updateUserProfileData(userHashMap)
-    }
-
-    /**
-     * A function to notify the user profile is updated successfully.
-     */
-    private fun profileUpdateSuccess() {
-        hideProgressDialog()
-
-        Toast.makeText(this@MyProfileActivity, "Profile updated successfully!", Toast.LENGTH_SHORT)
-            .show()
-
-        setResult(Activity.RESULT_OK)
-        finish()
-    }
-
-
+    // region upload image
     /**
      * A function to upload the selected user image to firebase cloud storage.
      */
@@ -193,11 +161,29 @@ class MyProfileActivity : BaseActivity() {
             )
         }
     }
+    // endregion
 
-    private fun loadUserData() {
-        store.loadUserData(
-            onSuccess = { user -> setUserDataInUI(user) },
-            onFailure = { hideProgressDialog() })
+    // region update profile
+    /**
+     * A function to update the user profile details into the database.
+     */
+    private fun updateUserProfileData() {
+        val userHashMap = HashMap<String, Any>()
+
+        if (mProfileImageURL.isNotEmpty() && mProfileImageURL != mUserDetails.image) {
+            userHashMap[Constants.IMAGE] = mProfileImageURL
+        }
+
+        if (et_name.text.toString() != mUserDetails.name) {
+            userHashMap[Constants.NAME] = et_name.text.toString()
+        }
+
+        if (et_mobile.text.toString() != mUserDetails.mobile.toString()) {
+            userHashMap[Constants.MOBILE] = et_mobile.text.toString().toLong()
+        }
+
+        // Update the data in the database.
+        updateUserProfileData(userHashMap)
     }
 
     private fun updateUserProfileData(userHashMap: HashMap<String, Any>) {
@@ -206,4 +192,18 @@ class MyProfileActivity : BaseActivity() {
             onSuccess = { profileUpdateSuccess() },
             onFailure = { hideProgressDialog() })
     }
+
+    /**
+     * A function to notify the user profile is updated successfully.
+     */
+    private fun profileUpdateSuccess() {
+        hideProgressDialog()
+
+        Toast.makeText(this@MyProfileActivity, "Profile updated successfully!", Toast.LENGTH_SHORT)
+            .show()
+
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+    // endregion
 }
