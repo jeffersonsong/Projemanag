@@ -46,13 +46,14 @@ open class CardMemberListItemsAdapter(
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
 
     private fun bind(view:View, position: Int) {
-        val model = list[position]
-
-        if (position == list.size - 1 && assignMembers) {
-            view.iv_add_member.visibility = View.VISIBLE
-            view.iv_selected_member_image.visibility = View.GONE
+        if (position == list.size) {
+            if (assignMembers) {
+                view.iv_add_member.visibility = View.VISIBLE
+                view.iv_selected_member_image.visibility = View.GONE
+            }
 
         } else {
+            val model = list[position]
             view.iv_add_member.visibility = View.GONE
             view.iv_selected_member_image.visibility = View.VISIBLE
 
@@ -72,7 +73,9 @@ open class CardMemberListItemsAdapter(
     /**
      * Gets the number of items in the list
      */
-    override fun getItemCount() = list.size
+    override fun getItemCount() =
+        if (assignMembers) list.size + 1
+        else list.size
 
     /**
      * A ViewHolder describes an item view and metadata about its place within the RecyclerView.
