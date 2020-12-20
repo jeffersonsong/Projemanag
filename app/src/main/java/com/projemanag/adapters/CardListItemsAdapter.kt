@@ -8,15 +8,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.projemanag.R
-import com.projemanag.activities.TaskListActivity
 import com.projemanag.model.Card
 import com.projemanag.model.SelectedMembers
+import com.projemanag.model.User
 import com.projemanag.utils.SelectedMembersHelper
 import kotlinx.android.synthetic.main.item_card.view.*
 
 open class CardListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Card>,
+    private val boardMembersList: java.util.ArrayList<User>,
     private val onClick: (cardPosition: Int) -> Unit
 ) : RecyclerView.Adapter<CardListItemsAdapter.MyViewHolder>() {
 
@@ -61,11 +62,11 @@ open class CardListItemsAdapter(
 
         view.tv_card_name.text = model.name
 
-        if ((context as TaskListActivity).mAssignedMembersDetailList.isNotEmpty()) {
+        if (boardMembersList.isNotEmpty()) {
             // A instance of selected members list.
             val selectedMembersList: ArrayList<SelectedMembers> =
                 SelectedMembersHelper.selectedMembersList(
-                    context.mAssignedMembersDetailList,
+                    boardMembersList,
                     model.assignedTo
                 )
 

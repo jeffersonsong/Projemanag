@@ -210,6 +210,7 @@ class TaskListActivity : BaseActivity() {
             adapter = TaskListItemsAdapter(
                 this@TaskListActivity,
                 mBoardDetails.taskList,
+                mAssignedMembersDetailList,
                 createTaskList = { taskListName -> createTaskList(taskListName) },
                 updateTaskList = { position, listName, task ->
                     updateTaskList(

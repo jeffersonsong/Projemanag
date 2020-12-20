@@ -16,12 +16,14 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.projemanag.R
 import com.projemanag.model.Card
 import com.projemanag.model.Task
+import com.projemanag.model.User
 import kotlinx.android.synthetic.main.item_task.view.*
 import java.util.*
 
 open class TaskListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Task>,
+    private val boardMembersList: ArrayList<User>,
     private val createTaskList: (taskListName: String) -> Unit,
     private val updateTaskList: (position: Int, listName: String, task: Task) -> Unit,
     private val deleteTaskList: (position: Int) -> Unit,
@@ -151,9 +153,10 @@ open class TaskListItemsAdapter(
 
         view.rv_card_list.layoutManager = LinearLayoutManager(context)
         view.rv_card_list.setHasFixedSize(true)
-        val adapter = CardListItemsAdapter(context, model.cards) { cardPosition ->
-            cardDetails(position, cardPosition)
-        }
+        val adapter =
+            CardListItemsAdapter(context, model.cards, boardMembersList) { cardPosition ->
+                cardDetails(position, cardPosition)
+            }
         view.rv_card_list.adapter = adapter
 
         val dividerItemDecoration =
