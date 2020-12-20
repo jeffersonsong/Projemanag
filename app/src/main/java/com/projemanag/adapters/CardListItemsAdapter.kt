@@ -46,7 +46,8 @@ open class CardListItemsAdapter(
      * of the given type. You can either create a new View manually or inflate it from an XML
      * layout file.
      */
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) = bind(holder.itemView, position)
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) =
+        bind(holder.itemView, position)
 
     private fun bind(view: View, position: Int) {
         val model = list[position]
@@ -63,20 +64,22 @@ open class CardListItemsAdapter(
         if ((context as TaskListActivity).mAssignedMembersDetailList.isNotEmpty()) {
             // A instance of selected members list.
             val selectedMembersList: ArrayList<SelectedMembers> =
-                SelectedMembersHelper.selectedMembersList(context.mAssignedMembersDetailList, model.assignedTo)
+                SelectedMembersHelper.selectedMembersList(
+                    context.mAssignedMembersDetailList,
+                    model.assignedTo
+                )
 
             if (selectedMembersList.isNotEmpty()) {
                 if (selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy) {
                     view.rv_card_selected_members_list.visibility = View.GONE
                 } else {
-                    view.rv_card_selected_members_list.visibility = View.VISIBLE
-
-                    view.rv_card_selected_members_list.layoutManager =
-                        GridLayoutManager(context, 4)
-                    val adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
-                        onClick(position)
+                    view.rv_card_selected_members_list.apply {
+                        visibility = View.VISIBLE
+                        layoutManager = GridLayoutManager(context, 4)
+                        adapter = CardMemberListItemsAdapter(context, selectedMembersList, false) {
+                            onClick(position)
+                        }
                     }
-                    view.rv_card_selected_members_list.adapter = adapter
                 }
             } else {
                 view.rv_card_selected_members_list.visibility = View.GONE

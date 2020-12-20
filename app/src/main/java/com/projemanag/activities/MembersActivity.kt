@@ -76,11 +76,12 @@ class MembersActivity : BaseActivity() {
     private fun setupMembersList(list: ArrayList<User>) {
         mAssignedMembersList = list
         hideProgressDialog()
-        rv_members_list.layoutManager = LinearLayoutManager(this@MembersActivity)
-        rv_members_list.setHasFixedSize(true)
-        val adapter = MemberListItemsAdapter(this@MembersActivity, list) { position, user, action ->
+        rv_members_list.apply {
+            layoutManager = LinearLayoutManager(this@MembersActivity)
+            setHasFixedSize(true)
+            adapter = MemberListItemsAdapter(this@MembersActivity, list) { position, user, action ->
+            }
         }
-        rv_members_list.adapter = adapter
     }
 
     /**

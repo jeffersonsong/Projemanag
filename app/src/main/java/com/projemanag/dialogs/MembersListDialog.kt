@@ -32,12 +32,14 @@ abstract class MembersListDialog(
         view.tvTitle.text = title
 
         if (list.isNotEmpty()) {
-            view.rvList.layoutManager = LinearLayoutManager(context)
-            val adapter = MemberListItemsAdapter(context, list) { position, user, action ->
-                dismiss()
-                onItemSelected(user, action)
+            view.rvList.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter =
+                    MemberListItemsAdapter(context, list) { position, user, action ->
+                        dismiss()
+                        onItemSelected(user, action)
+                    }
             }
-            view.rvList.adapter = adapter
         }
     }
 

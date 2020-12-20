@@ -214,19 +214,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun populateBoardsListToUI(boardsList: ArrayList<Board>) {
         hideProgressDialog()
         if (boardsList.isNotEmpty()) {
-
-            rv_boards_list.visibility = View.VISIBLE
             tv_no_boards_available.visibility = View.GONE
 
-            rv_boards_list.layoutManager = LinearLayoutManager(this@MainActivity)
-            rv_boards_list.setHasFixedSize(true)
-
-            // Create an instance of BoardItemsAdapter and pass the boardList to it.
-            val adapter =
-                BoardItemsAdapter(this@MainActivity, boardsList) { position: Int, model: Board ->
+            rv_boards_list.apply {
+                visibility = View.VISIBLE
+                layoutManager = LinearLayoutManager(this@MainActivity)
+                setHasFixedSize(true)
+                adapter = BoardItemsAdapter(this@MainActivity, boardsList) { position: Int, model: Board ->
                     gotoTaskListScreen(model)
                 }
-            rv_boards_list.adapter = adapter // Attach the adapter to the recyclerView.
+            }
 
         } else {
             rv_boards_list.visibility = View.GONE

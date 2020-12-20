@@ -36,10 +36,9 @@ class TaskListActivity : BaseActivity() {
 
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
             mBoardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID)!!
+            // Show the progress dialog.
+            getBoardDetails(mBoardDocumentId)
         }
-
-        // Show the progress dialog.
-        getBoardDetails(mBoardDocumentId)
     }
 
     /**
@@ -87,14 +86,11 @@ class TaskListActivity : BaseActivity() {
      * A function to get the result of Board Detail.
      */
     private fun boardDetails(board: Board) {
-
         mBoardDetails = board
 
         hideProgressDialog()
-
         // Call the function to setup action bar.
         setupActionBar()
-
         getAssignedMembersListDetails()
     }
 
@@ -118,9 +114,7 @@ class TaskListActivity : BaseActivity() {
      * A function to update the taskList
      */
     fun updateTaskList(position: Int, listName: String, model: Task) {
-
         val task = Task(listName, model.createdBy)
-
         mBoardDetails.taskList[position] = task
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
@@ -131,9 +125,7 @@ class TaskListActivity : BaseActivity() {
      * A function to delete the task list from database.
      */
     fun deleteTaskList(position: Int) {
-
         mBoardDetails.taskList.removeAt(position)
-
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
         addUpdateTaskList()
@@ -206,28 +198,42 @@ class TaskListActivity : BaseActivity() {
         val addTaskList = Task(resources.getString(R.string.add_list))
         mBoardDetails.taskList.add(addTaskList)
 
-        rv_task_list.layoutManager =
-            LinearLayoutManager(this@TaskListActivity, LinearLayoutManager.HORIZONTAL, false)
-        rv_task_list.setHasFixedSize(true)
-
-        // Create an instance of TaskListItemsAdapter and pass the task list to it.
-        val adapter = TaskListItemsAdapter(
-            this@TaskListActivity,
-            mBoardDetails.taskList,
-            createTaskList = { taskListName -> createTaskList(taskListName) },
-            updateTaskList = { position, listName, task ->
-                updateTaskList(
-                    position,
-                    listName,
-                    task
+        rv_task_list.apply {
+            layoutManager =
+                LinearLayoutManager(
+                    this@TaskListActivity,
+                    LinearLayoutManager.HORIZONTAL, false
                 )
-            },
-            deleteTaskList = { position -> deleteTaskList(position) },
-            addCardToTaskList = { position, cardName -> addCardToTaskList(position, cardName) },
-            updateCardsInTaskList = {taskListPosition, cards -> updateCardsInTaskList(taskListPosition, cards) },
-            cardDetails = {taskListPosition, cardPosition ->  cardDetails(taskListPosition, cardPosition)}
-        )
-        rv_task_list.adapter = adapter // Attach the adapter to the recyclerView.
+
+            setHasFixedSize(true)
+
+            adapter = TaskListItemsAdapter(
+                this@TaskListActivity,
+                mBoardDetails.taskList,
+                createTaskList = { taskListName -> createTaskList(taskListName) },
+                updateTaskList = { position, listName, task ->
+                    updateTaskList(
+                        position,
+                        listName,
+                        task
+                    )
+                },
+                deleteTaskList = { position -> deleteTaskList(position) },
+                addCardToTaskList = { position, cardName -> addCardToTaskList(position, cardName) },
+                updateCardsInTaskList = { taskListPosition, cards ->
+                    updateCardsInTaskList(
+                        taskListPosition,
+                        cards
+                    )
+                },
+                cardDetails = { taskListPosition, cardPosition ->
+                    cardDetails(
+                        taskListPosition,
+                        cardPosition
+                    )
+                }
+            )
+        }
     }
 
     /**

@@ -151,7 +151,6 @@ open class TaskListItemsAdapter(
 
         view.rv_card_list.layoutManager = LinearLayoutManager(context)
         view.rv_card_list.setHasFixedSize(true)
-
         val adapter = CardListItemsAdapter(context, model.cards) { cardPosition ->
             cardDetails(position, cardPosition)
         }
