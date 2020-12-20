@@ -114,8 +114,8 @@ class SignUpActivity : BaseActivity() {
         pleaseWait()
         authentication.createUserWithEmailAndPassword(
             name, email, password,
-            { user -> registerUser(user) },
-            { e ->
+            onSuccess = { user -> registerUser(user) },
+            onFailure = { e ->
                 Toast.makeText(this@SignUpActivity, e.message, Toast.LENGTH_SHORT).show()
             })
     }

@@ -83,7 +83,7 @@ class SignInActivity : BaseActivity() {
     /**
      * A function to get the user details from the firestore database after authentication.
      */
-    private fun signInSuccess(user: User) {
+    private fun signInSuccess() {
         hideProgressDialog()
         gotoMainScreen()
         this.finish()
@@ -96,8 +96,8 @@ class SignInActivity : BaseActivity() {
     private fun signInWithEmailAndPassword(email: String, password: String) {
         authentication.signInWithEmailAndPassword(
             email, password,
-            { loadUserData() },
-            { e ->
+            onSuccess = { loadUserData() },
+            onFailure = { e ->
                 Toast.makeText(
                     this@SignInActivity,
                     e.message,
@@ -108,7 +108,7 @@ class SignInActivity : BaseActivity() {
 
     private fun loadUserData() {
         firestore.loadUserData(
-            onSuccess = { user -> signInSuccess(user) },
+            onSuccess = { user -> signInSuccess() },
             onFailure = { hideProgressDialog() })
     }
 }

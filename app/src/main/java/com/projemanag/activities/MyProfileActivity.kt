@@ -198,7 +198,7 @@ class MyProfileActivity : BaseActivity() {
 
             imageStorage.uploadImage(
                 mSelectedImageFileUri!!, fileName,
-                { uri ->
+                onSuccess = { uri ->
                     Log.e("Downloadable Image URL", uri.toString())
                     // assign the image url to the variable.
                     mProfileImageURL = uri.toString()
@@ -206,7 +206,7 @@ class MyProfileActivity : BaseActivity() {
                     // Call a function to update user details in the database.
                     updateUserProfileData()
                 },
-                { exception ->
+                onFailure = { exception ->
                     Toast.makeText(
                         this@MyProfileActivity,
                         exception.message,

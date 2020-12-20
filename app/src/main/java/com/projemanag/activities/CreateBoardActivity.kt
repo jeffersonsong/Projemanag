@@ -138,9 +138,9 @@ class CreateBoardActivity : BaseActivity() {
         val fileName = ("BOARD_IMAGE" + System.currentTimeMillis() + "."
                 + Constants.getFileExtension(this@CreateBoardActivity, mSelectedImageFileUri))
         imageStorage.uploadImage(
-            mSelectedImageFileUri!!,
-            fileName,
-            { uri ->
+            mSelectedImageFileUri = mSelectedImageFileUri!!,
+            fileName = fileName,
+            onSuccess = { uri ->
                 Log.e("Downloadable Image URL", uri.toString())
 
                 // assign the image url to the variable.
@@ -149,7 +149,7 @@ class CreateBoardActivity : BaseActivity() {
                 // Call a function to create the board.
                 createBoard()
             },
-            { exception ->
+            onFailure = { exception ->
                 Toast.makeText(
                     this@CreateBoardActivity,
                     exception.message,
